@@ -179,6 +179,7 @@ function render(){
     <div class="chips">${e.reps?`<span class="chip hot">${esc(e.reps)} reps</span>`:''}${e.sets>1?`<span class="chip">set ${s.round+1} of ${e.sets}</span>`:''}${e.tempo?`<span class="chip">tempo ${esc(e.tempo)}</span>`:''}${e.restSeconds?`<span class="chip">then rest ${e.restSeconds}s</span>`:''}</div>
     ${e.tempo?`<div class="sub">${esc(TEMPO_WORDS(e.tempo))}, in seconds</div>`:''}
     ${sp?`<p class="note">${esc(sp)}</p>`:''}
+    ${spiceToday()?`<div class="spice">✦ <b>Spice today: ${esc(spiceToday().name)}.</b> ${esc(spiceToday().how)}</div>`:''}
     ${holdUI}
     <label class="wt">Weight <input id="wt" type="number" inputmode="decimal" step="0.5" min="0" data-wt="${esc(e.video||e.name)}" value="${lw&&lw.d===TODAY?lw.w:''}" placeholder="${lw?'last '+lw.w:'lb'}"> lb${lw&&lw.d!==TODAY?`<span class="sub">last time ${lw.w}</span>`:''}</label>
     <div class="links">${vidBtn}<button data-swap="1">⇄ ${e.swapped?'Swapped · change':'Swap'}</button></div></div>
