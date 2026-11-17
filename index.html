@@ -58,6 +58,7 @@ header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 1
 .howto ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
 .howto .got{align-self:flex-start;border:0;background:var(--brand);color:#fff;border-radius:12px;padding:10px 16px;font-weight:600;margin-top:4px}
 .howto-link{align-self:flex-start;border:0;background:none;color:var(--brand);font-weight:600;padding:0;text-decoration:underline}
+.spice{background:var(--gold-soft);border:1px solid var(--gold);border-radius:14px;padding:10px 12px;font-size:14px}.spice a{color:inherit}
 .alllist{display:flex;flex-direction:column;gap:14px}
 .alllist .ph{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
 .alllist .ws{display:flex;flex-direction:column;gap:6px}
@@ -129,6 +130,7 @@ function render(){
   $('#intro').innerHTML=`<div class="intro"><div class="quote">“${esc(p.quote)}”</div>
     <div class="chips"><span class="chip hot">${esc(p.reps)}</span><span class="chip">${esc(p.load)}</span><span class="chip">${day.n} exercises · ~${day.minutes} min</span>${w.home?'<span class="chip gold">Home version</span>':''}</div>
     <p class="note">${esc(p.about)}</p>${vid}
+    ${(()=>{const sp=store.get('vault:spice',null);return sp&&sp.d===TODAY?`<div class="spice">✦ <b>Spice today: ${esc(sp.name)}.</b> ${esc(sp.how)} <a href="spice.html">Change</a></div>`:''})()}
     <div class="toolrow"><span class="seg"><button data-place="gym" aria-pressed="${pl==='gym'}">Gym</button><button data-place="home" aria-pressed="${pl==='home'}">Home</button></span><a href="play.html#${esc(day.id)}" class="pill play">▶ Play</a><a href="print.html#${esc(day.id)}" class="pill" target="_blank" rel="noopener">🖨 Print</a></div></div>`;
   $('#howto').innerHTML=howtoHTML(day);
   const saved=store.get(key(),{ticks:{}});
