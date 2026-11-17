@@ -203,3 +203,24 @@ function picHTML(d,e,lazy){
   if(pr.startPhoto) return `<div class="pair"><figure><img src="${esc(pr.startPhoto)}" alt="" ${lazy?'loading="lazy"':''}><figcaption>Start</figcaption></figure><figure><img src="${esc(pr.endPhoto)}" alt="" ${lazy?'loading="lazy"':''}><figcaption>End</figcaption></figure></div>`;
   return e.photo?`<img class="photo" src="${esc(e.photo)}" alt="" ${lazy?'loading="lazy"':''}>`:'';
 }
+
+/* ---- applying today's spice to the workout ----
+   The bones stay the same. The spice changes only how the reps are done, on every exercise or on the last
+   exercise of each circuit, whichever was picked on the Spice Rack page. */
+function spiceToday(){const s=store.get('vault:spice',null);return s&&s.d===TODAY?s:null}
+function spiced(e,lastInBlock){
+  const sp=spiceToday(); if(!sp) return e;
+  if((sp.scope||'last')==='last'&&!lastInBlock) return e;
+  const x={...e,spice:sp.name};
+  switch(sp.id){
+    case 'drop': x.reps='10-10-10'; x.spiceNote='Drop set: 10 reps heavy, drop the weight, 10 more, drop again, 10 more. No rest between drops.'; break;
+    case 'pyramid': x.reps='10-10-10-10-10'; x.sets=1; x.restSeconds=Math.max(e.restSeconds,60); x.spiceNote='Pyramid: 10 reps, go up in weight, 10 more, up again, 10 more. Rest 10 seconds, then 10 and 10 back down. One big set.'; break;
+    case '21': x.reps='7-7-7'; x.spiceNote="21's: 7 bottom half, 7 top half, 7 full range. No rest between the parts."; break;
+    case 'half': x.spiceNote='1½ reps: all the way down, halfway up, back down, all the way up. That is one rep. Same rep count.'; break;
+    case 'neg': x.tempo='512'; x.spiceNote='Negatives: 5 to 6 seconds down, pause 1, up in 2. Same reps, slower.'; break;
+    case 'iso': x.note=((e.note||'')+' Isometric Hold 25s').trim(); x.spiceNote='Isometric hold: on the last rep, hold the hardest point for 20 to 30 seconds. Tap the hold timer.'; break;
+    case 'uni': x.reps=/per side/.test(e.reps||'')?e.reps:(e.reps||'')+' per side'; x.spiceNote='One side at a time, or alternate. Equal reps each side.'; break;
+  }
+  return x;
+}
+const spiceBox=e=>e.spice?`<div class="spice">✦ <b>${esc(e.spice)} on this one.</b> ${esc(e.spiceNote||'')}</div>`:'';

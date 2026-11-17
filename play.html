@@ -83,11 +83,12 @@ const shown=e=>shownEx(D,DAYX.id,e,place());
 function buildSteps(){
   steps=[];
   DAYX.blocks.forEach(b=>{
+    b={...b,exercises:b.exercises.map((e,i)=>spiced(e,i===b.exercises.length-1))};
     const rounds=Math.max(...b.exercises.map(e=>e.sets||1));
     for(let r=0;r<rounds;r++){
       const inRound=b.exercises.filter(e=>(e.sets||1)>r);
       inRound.forEach((e,i)=>{
-        steps.push({kind:'ex',e,round:r,rounds,block:b,last:i===inRound.length-1});
+        steps.push({kind:'ex',e,round:r,rounds,block:b,last:i===inRound.length-1,lastInBlock:e===b.exercises[b.exercises.length-1]});
         if(e.restSeconds>0) steps.push({kind:'rest',sec:e.restSeconds,block:b,round:r,rounds,active:!!e.activeRest});
       });
     }
@@ -127,7 +128,6 @@ function finish(){
   logDone(DAYX,W,P);
   at=steps.length;render();
 }
-function spiceToday(){const s=store.get('vault:spice',null);return s&&s.d===TODAY?s:null}
 
 function render(){
   $('#listLink').href=`index.html#${DAYX.id}`;
@@ -143,7 +143,7 @@ function render(){
       <p class="note">${DAYX.n} exercises, ${DAYX.blocks.length} circuit${DAYX.blocks.length>1?'s':''}, about ${DAYX.minutes} minutes. ${esc(P.reps)}. I'll tell you what's next and start the rest timer for you.</p>
       <div class="chips">${DAYX.blocks.map(b=>`<span class="chip">${esc(b.label)}: ${b.exercises.map(e=>e.code).join(' → ')}</span>`).join('')}</div>
       <div class="opt"><span><b>Where are you?</b><br><small class="note">Home swaps in the home version of each move.</small></span><span class="seg"><button data-place="gym" aria-pressed="${pl==='gym'}">Gym</button><button data-place="home" aria-pressed="${pl==='home'}">Home</button></span></div>
-      ${sp?`<div class="spice"><b>Today's spice: ${esc(sp.name)}.</b> ${esc(sp.how)} <a href="spice.html" style="color:inherit">Change</a></div>`:''}
+      ${sp?`<div class="spice"><b>Today's spice: ${esc(sp.name)}</b> on ${sp.scope==='all'?'every exercise':'the last exercise of each circuit'}. ${esc(sp.how)} <a href="spice.html" style="color:inherit">Change</a></div>`:''}
       <button class="go" id="start">Start</button><a class="change" href="play.html">Pick a different workout</a></div>`;
     return;
   }
@@ -179,7 +179,7 @@ function render(){
     <div class="chips">${e.reps?`<span class="chip hot">${esc(e.reps)} reps</span>`:''}${e.sets>1?`<span class="chip">set ${s.round+1} of ${e.sets}</span>`:''}${e.tempo?`<span class="chip">tempo ${esc(e.tempo)}</span>`:''}${e.restSeconds?`<span class="chip">then rest ${e.restSeconds}s</span>`:''}</div>
     ${e.tempo?`<div class="sub">${esc(TEMPO_WORDS(e.tempo))}, in seconds</div>`:''}
     ${sp?`<p class="note">${esc(sp)}</p>`:''}
-    ${spiceToday()?`<div class="spice">✦ <b>Spice today: ${esc(spiceToday().name)}.</b> ${esc(spiceToday().how)}</div>`:''}
+    ${spiceBox(e)}
     ${holdUI}
     <label class="wt">Weight <input id="wt" type="number" inputmode="decimal" step="0.5" min="0" data-wt="${esc(e.video||e.name)}" value="${lw&&lw.d===TODAY?lw.w:''}" placeholder="${lw?'last '+lw.w:'lb'}"> lb${lw&&lw.d!==TODAY?`<span class="sub">last time ${lw.w}</span>`:''}</label>
     <div class="links">${vidBtn}<button data-swap="1">⇄ ${e.swapped?'Swapped · change':'Swap'}</button></div></div>

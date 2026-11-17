@@ -22,6 +22,8 @@
 .sp.pick{border-color:var(--gold);background:var(--gold-soft)}
 .sp .use{align-self:flex-start;border:1px solid var(--brand);background:transparent;color:var(--brand);border-radius:999px;padding:8px 14px;font-weight:600}
 .sp .use.on{background:var(--brand);color:#fff}
+.where{display:flex;flex-direction:column;gap:8px;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:14px}
+.where .seg button{padding:9px 10px;font-size:13px}
 </style>
 <div class="wrap">
   <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">The Spice Rack System</span><h1>Season the workout</h1>
@@ -59,13 +61,15 @@ function render(){
   $('#sugg').textContent=energy?EN[energy]:"Pick one and I'll point you at the right spices.";
   const list=energy?[...SPICES].sort((a,b)=>(a.e===energy?-1:0)-(b.e===energy?-1:0)):SPICES;
   $('#list').innerHTML=list.map((s,i)=>`<div class="card sp ${energy===s.e?'pick':''}"><span class="n">Spice ${String(SPICES.indexOf(s)+1).padStart(2,'0')} · ${esc(s.sub)}</span><h2>${esc(s.name)}</h2><p>${esc(s.how)}</p><div class="ex"><b>Example</b> ${esc(s.ex)}</div>
-    <button class="use ${picked===s.id?'on':''}" data-use="${s.id}">${picked===s.id?'✓ Using this today':'Use this today'}</button></div>`).join('');
+    <button class="use ${picked===s.id?'on':''}" data-use="${s.id}">${picked===s.id?'✓ Using this today':'Use this today'}</button>
+    ${picked===s.id?`<div class="where"><span>Where?</span><span class="seg"><button data-scope="last" aria-pressed="${(today.scope||'last')==='last'}">Last exercise of each circuit</button><button data-scope="all" aria-pressed="${today.scope==='all'}">Every exercise</button></span><p class="note">The app changes the reps for you on those exercises. Everything else stays as written.</p></div>`:''}</div>`).join('');
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.e){energy=energy===b.dataset.e?null:b.dataset.e;render();return}
+  if(b.dataset.scope){const cur=store.get('vault:spice',null);if(cur){cur.scope=b.dataset.scope;store.set('vault:spice',cur)}render();return}
   if(b.dataset.use){const s=SPICES.find(x=>x.id===b.dataset.use);const cur=store.get('vault:spice',null);
-    if(cur&&cur.d===TODAY&&cur.id===s.id)store.del('vault:spice');else store.set('vault:spice',{d:TODAY,id:s.id,name:s.name,how:s.how});render()}
+    if(cur&&cur.d===TODAY&&cur.id===s.id)store.del('vault:spice');else store.set('vault:spice',{d:TODAY,id:s.id,name:s.name,how:s.how,scope:(cur&&cur.scope)||'last'});render()}
 });
 $('#spvid').innerHTML=vidHTML('spice');
 render();

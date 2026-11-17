@@ -130,7 +130,7 @@ function render(){
   $('#intro').innerHTML=`<div class="intro"><div class="quote">“${esc(p.quote)}”</div>
     <div class="chips"><span class="chip hot">${esc(p.reps)}</span><span class="chip">${esc(p.load)}</span><span class="chip">${day.n} exercises · ~${day.minutes} min</span>${w.home?'<span class="chip gold">Home version</span>':''}</div>
     <p class="note">${esc(p.about)}</p>${vid}
-    ${(()=>{const sp=store.get('vault:spice',null);return sp&&sp.d===TODAY?`<div class="spice">✦ <b>Spice today: ${esc(sp.name)}.</b> ${esc(sp.how)} <a href="spice.html">Change</a></div>`:''})()}
+    ${(()=>{const sp=store.get('vault:spice',null);return sp&&sp.d===TODAY?`<div class="spice">✦ <b>Spice today: ${esc(sp.name)}</b> on ${sp.scope==='all'?'every exercise':'the last exercise of each circuit'}. The reps below are already changed for it. <a href="spice.html">Change</a></div>`:''})()}
     <div class="toolrow"><span class="seg"><button data-place="gym" aria-pressed="${pl==='gym'}">Gym</button><button data-place="home" aria-pressed="${pl==='home'}">Home</button></span><a href="play.html#${esc(day.id)}" class="pill play">▶ Play</a><a href="print.html#${esc(day.id)}" class="pill" target="_blank" rel="noopener">🖨 Print</a></div></div>`;
   $('#howto').innerHTML=howtoHTML(day);
   const saved=store.get(key(),{ticks:{}});
@@ -143,7 +143,7 @@ function render(){
     const last=b.exercises[n-1];
     const head=`<div class="ss-head"><h3>${esc(b.label)}${kind?` · ${kind}`:''}</h3><span>${complete?'Done':(n>1?`${b.exercises.map(e=>e.code).join(' → ')}, then rest${last.restSeconds?' '+last.restSeconds+'s':''}`:'')}</span></div>`;
     return `<section class="ss ${complete?'complete':''}">${head}`+b.exercises.map(e0=>{
-      const e=shownEx(D,day.id,e0,pl);
+      const e=spiced(shownEx(D,day.id,e0,pl),e0===b.exercises[b.exercises.length-1]);
       const t=saved.ticks[e.code]||[];
       const sets=e.sets||1;
       const btns=Array.from({length:sets},(_,i)=>`<button aria-pressed="${!!t[i]}" aria-label="Set ${i+1} of ${esc(e.name)}" data-tick="${e.code}" data-i="${i}">Set ${i+1}</button>`).join('');
@@ -159,7 +159,7 @@ function render(){
           ${e.swapped?`<div class="sub">Swapped in for ${esc(e.orig)}</div>`:e.gymName?`<div class="sub">At the gym: ${esc(e.gymName)}</div>`:''}</div>
         <div class="chips">${e.reps?`<span class="chip hot">${esc(e.reps)} reps</span>`:''}${sets?`<span class="chip">${esc(setsLabel(e))}</span>`:''}${e.restSeconds?`<span class="chip">rest ${e.restSeconds}s${e.activeRest?' active':''}</span>`:''}${tempo}</div>
         ${e.tempo?`<div class="sub">Tempo ${esc(e.tempo)}: ${esc(TEMPO_WORDS(e.tempo))} (seconds)</div>`:''}
-        ${sp?`<p class="note">${esc(sp)}</p>`:''}
+        ${sp&&!e.spice?`<p class="note">${esc(sp)}</p>`:''}${spiceBox(e)}
         <div class="row"><div class="sets">${btns}${hs?`<button data-hold="${e.code}" data-sec="${hs}">⏱ ${hs}s hold</button>`:''}</div>
           <label class="wt">Weight <input type="number" inputmode="decimal" step="0.5" min="0" data-wt="${esc(e.video||e.name)}" value="${lw&&lw.d===TODAY?lw.w:''}" placeholder="${lw?'last '+lw.w:'lb'}"> lb</label></div>
         <div class="links">${vidBtn}<button class="swapb ${e.swapped?'on':''}" data-swap="${e.code}">⇄ ${e.swapped?'Swapped · change':'Swap'}</button></div>
