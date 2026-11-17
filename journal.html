@@ -1,0 +1,69 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vault Journal · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+.q{display:flex;flex-direction:column;gap:6px}
+.q label{font-weight:600;font-size:15px}
+.q label small{display:block;font-weight:400;color:var(--muted)}
+.past{display:flex;flex-direction:column;gap:8px}
+.past details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.past summary{font-weight:600;cursor:pointer}
+.past dl{margin:8px 0 0;font-size:14px}
+.past dt{font-weight:600;margin-top:6px}
+.past dd{margin:0;color:var(--muted);white-space:pre-wrap}
+.saved{color:var(--done);font-weight:600;font-size:14px}
+</style>
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">The Vault Journal</span><h1>Five minutes a week</h1>
+    <p class="lead">This isn't about perfection. It's about awareness, reflection and progress. Write how you feel: strength, energy, mindset, little wins. The more you track, the more you see how far you've come.</p></header>
+  <div class="card" id="jvid"></div>
+  <section class="card" id="form"></section>
+  <h2 class="also">Earlier weeks</h2>
+  <section class="past" id="past"></section>
+  <section class="card gold"><h3>“The scale lies. These checkpoints don't.”</h3><p>Compliments, clothes that fit differently, more energy, heavier dumbbells. Write them down. That is the progress.</p></section>
+</div>
+<script src="vault.js"></script>
+<script>
+const Q=[
+ ['feel','How did my workouts feel this week?','energy, strength, mood'],
+ ['win',"One win I'm proud of this week is…",''],
+ ['improve','One area I can improve next week, or something I struggled with…',''],
+ ['confident','How confident am I feeling in creating or following my workouts?',''],
+ ['body',"How's my self-confidence and body confidence this week?",''],
+ ['noticed','Any compliments, changes in clothes, or small progress I noticed','be specific'],
+ ['notes','Notes','anything I learned · challenges · mindset thoughts'],
+];
+const wkKey=d=>ymd(monday(d));
+let saved=false;
+function entries(){return store.get('vault:journal',{})}
+function render(){
+  const all=entries(), k=wkKey(new Date()), e=all[k]||{};
+  const c=climb(); const D=null;
+  const done=doneInWeek(monday(new Date())).length;
+  $('#form').innerHTML=`<span class="eyebrow">Week of ${esc(k)}${c?` · Step ${c.step}`:''} · ${done} workout${done===1?'':'s'} so far</span>
+    ${Q.map(([id,q,hint])=>`<div class="q"><label for="j-${id}">${esc(q)}${hint?`<small>${esc(hint)}</small>`:''}</label><textarea id="j-${id}" data-q="${id}">${esc(e[id]||'')}</textarea></div>`).join('')}
+    <div class="toolrow"><button class="go" id="save" style="width:auto;padding:14px 22px;font-size:16px">Save this week</button>${saved?'<span class="saved">Saved ✓</span>':''}<button class="pill" id="share">Share as text</button></div>`;
+  const past=Object.keys(all).filter(x=>x!==k).sort().reverse();
+  $('#past').innerHTML=past.length?past.map(x=>`<details><summary>Week of ${esc(x)}</summary><dl>${Q.filter(([id])=>all[x][id]).map(([id,q])=>`<dt>${esc(q)}</dt><dd>${esc(all[x][id])}</dd>`).join('')}</dl></details>`).join(''):'<p class="note">Nothing yet. Your first entry shows up here next week.</p>';
+}
+function collect(){const all=entries(),k=wkKey(new Date());const e={};document.querySelectorAll('textarea[data-q]').forEach(t=>{if(t.value.trim())e[t.dataset.q]=t.value.trim()});all[k]=e;store.set('vault:journal',all);return e}
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.id==='save'){collect();saved=true;render();setTimeout(()=>{saved=false},3000);return}
+  if(b.id==='share'){const en=collect();const txt=`Vault Journal · week of ${wkKey(new Date())}\n\n`+Q.filter(([id])=>en[id]).map(([id,q])=>`${q}\n${en[id]}`).join('\n\n');
+    try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);alert('Copied')}}catch(x){}}
+});
+document.addEventListener('input',e=>{if(e.target.matches('textarea[data-q]'))collect()});
+$('#jvid').innerHTML=vidHTML('journal');
+render();
+</script>

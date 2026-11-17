@@ -1,0 +1,114 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+/* Home page. One big button for today, then the Climb, then everything else. */
+.today{background:var(--brand);color:#fff;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.today .eyebrow{color:var(--gold)}
+.today h2{font-size:30px;color:#fff}
+.today p{color:rgba(255,255,255,.85);font-size:15px}
+.today .go{background:var(--gold);color:#2b2118;margin-top:4px}
+.today .alt{display:flex;gap:8px;flex-wrap:wrap}
+.today .alt a{color:#fff;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.setup{display:flex;flex-direction:column;gap:10px}
+.setup .q{font:600 16px/1.3 var(--body)}
+.setup .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.setup .opts button{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px;text-align:left;font-size:15px}
+.setup .opts button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.setup .opts button b{display:block;font-weight:600}
+.setup .opts button small{color:var(--muted);font-size:13px}
+.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.steps5 span{height:8px;border-radius:4px;background:var(--line)}
+.steps5 span.on{background:var(--gold)}
+.steps5 span.now{background:var(--brand)}
+</style>
+<div class="wrap">
+  <header class="page">
+    <img src="icons/logo.png" alt="The Toning Vault" style="width:min(300px,78%);height:auto;margin-bottom:4px">
+    <p class="lead">Every workout, the calendar and the Ladder, on your phone.</p>
+  </header>
+
+  <section id="today"></section>
+  <section class="card" id="orient"><h3>New here?</h3><p>Two minutes with Michelle on where everything is.</p><div id="orientVid"></div></section>
+
+  <h2 class="also">The system</h2>
+  <section class="ways">
+    <a class="way" href="climb.html"><span class="ic">1</span><span><b>The Climb</b><small id="climbSub">Which step you're on, which week, and when to climb.</small></span></a>
+    <a class="way" href="week.html"><span class="ic">W</span><span><b>This week</b><small>The Plug &amp; Play calendar, filled in for you.</small></span></a>
+    <a class="way" href="index.html#all"><span class="ic">A</span><span><b>All workouts</b><small>Every phase, every workout, every day. Gym and home.</small></span></a>
+    <a class="way" href="spice.html"><span class="ic gold">✦</span><span><b>The Spice Rack</b><small>Seven ways to season a 4th or 5th workout. Pick one by how you feel.</small></span></a>
+  </section>
+
+  <h2 class="also">Also here</h2>
+  <section class="ways">
+    <a class="way" href="journal.html"><span class="ic">J</span><span><b>Vault Journal</b><small>Five minutes a week. The scale lies, these checkpoints don't.</small></span></a>
+    <a class="way" href="guide.html"><span class="ic">G</span><span><b>How to run the Vault</b><small>Reading a workout, the circuits, tempo, the words you'll see.</small></span></a>
+    <a class="way" href="checklist.html"><span class="ic">C</span><span><b>Before you start</b><small>The checklist. Gear, logistics, fuel.</small></span></a>
+    <a class="way" href="videos.html"><span class="ic">V</span><span><b>Michelle explains</b><small>The Roadmap, the Ladder, the calendars, the Spice Rack.</small></span></a>
+  </section>
+
+  <section class="card">
+    <h3>Play, List or Print</h3>
+    <p>Every workout day has all three. <b>Play</b> walks you through one exercise at a time, runs the rest and hold timers, and remembers your weights. <b>List</b> shows the whole day on one page. <b>Print</b> is paper.</p>
+  </section>
+
+  <section class="card soft">
+    <h3>Put it on your home screen</h3>
+    <p>Then it opens like an app, full screen, and the photos work with bad signal.</p>
+    <a href="install.html" style="font-weight:600;color:var(--brand)">Show me how, with pictures →</a>
+  </section>
+</div>
+<script src="vault.js"></script>
+<script>
+let D=null;
+function renderToday(){
+  const c=climb(), el=$('#today');
+  if(!c){
+    const o=store.get('vault:setup',{cal:'o35',place:'gym',step:1});
+    el.innerHTML=`<div class="card setup"><span class="eyebrow">Start the Climb</span><h2>Three quick questions</h2>
+      <p>Then the app plans every week for you and tells you what to do today.</p>
+      <div class="q">1. Which calendar?</div>
+      <div class="opts"><button data-k="cal" data-v="u35" aria-pressed="${o.cal==='u35'}"><b>Under 35</b><small>3 toning days + 2 cardio days</small></button><button data-k="cal" data-v="o35" aria-pressed="${o.cal==='o35'}"><b>Over 35</b><small>5 days, toning only, no cardio days</small></button></div>
+      <div class="q">2. Where do you mostly train?</div>
+      <div class="opts"><button data-k="place" data-v="gym" aria-pressed="${o.place==='gym'}"><b>Gym</b><small>Cables, machines, dumbbells</small></button><button data-k="place" data-v="home" aria-pressed="${o.place==='home'}"><b>Home</b><small>Dumbbells, band, stability ball</small></button></div>
+      <div class="q">3. Which step?</div>
+      <div class="opts"><button data-k="step" data-v="1" aria-pressed="${o.step===1}"><b>Step 1</b><small>Fat Loss Foundation. New here? Start here.</small></button><button data-k="step" data-v="2" aria-pressed="${o.step===2}"><b>Step 2</b><small>Toning. Already trained for months and feeling strong.</small></button></div>
+      <button class="go" id="begin">Start the Climb</button>
+      <p class="note">You can change any of this later from The Climb.</p></div>`;
+    return;
+  }
+  const w=currentWorkout(D,c), wk=stepWeek(c), wd=(new Date().getDay()+6)%7, p=plan(c,wk,wd);
+  const name=stepName(D,c.step);
+  const done=doneOn(TODAY);
+  let head='',body='',cta='';
+  if(done.length){head=`Done today`;body=`${esc(done.map(x=>x.name).join(', '))}. Nice. ${p.type==='rest'?'Rest tomorrow.':''}`;cta=`<a class="go" href="week.html">See the week</a>`}
+  else if(p.type==='toning'){const d=w.days.find(x=>x.day===p.day)||w.days[0];head=`${esc(w.name)} · Day ${d.day}`;
+    body=`${d.n} exercises, about ${d.minutes} minutes. ${p.note?esc(p.note)+' ':''}${p.spice?'<a href="spice.html" style="color:var(--gold)">Pick a spice →</a>':''}`;
+    cta=`<a class="go" href="play.html#${d.id}">▶ Play Day ${d.day}</a><div class="alt"><a href="index.html#${d.id}">List view</a><a href="print.html#${d.id}">Print</a><a href="week.html">Other days</a></div>`}
+  else if(p.type==='cardio'){head='Cardio day';body=esc(p.note);cta=`<div class="alt"><a href="week.html">See the week</a></div>`}
+  else if(p.type==='extra'){const f=D.phases[0].workouts.find(x=>!x.home);head=p.label==='Extra'?'Extra workout':p.label;body=esc(p.note);
+    cta=`<a class="go" href="${p.full?`play.html#${placed(D,f,c.place).days[0].id}`:`play.html#${w.days[0].id}`}">▶ ${p.full?'Play a Foundation day':'Play Day 1 again'}</a><div class="alt"><a href="index.html#${w.id}">Pick another day</a><a href="spice.html">Add a spice</a></div>`}
+  else {head='Rest day';body=esc(p.note);cta=`<div class="alt"><a href="week.html">See the week</a><a href="journal.html">Write in the journal</a></div>`}
+  el.innerHTML=`<div class="today"><span class="eyebrow">Today · ${WEEKDAYS[wd]} · Step ${c.step} ${esc(name)} · Week ${wk>4?'4+':wk}</span><h2>${head}</h2><p>${body}</p>${cta}
+    <div class="steps5">${[1,2,3,4,5].map(s=>`<span class="${s<c.step?'on':s===c.step?'now':''}"></span>`).join('')}</div>
+    ${wk>4?`<p style="color:var(--gold)"><b>Week ${wk}.</b> Four weeks on this step are done. <a href="climb.html" style="color:var(--gold)">Climb to the next step →</a></p>`:''}</div>`;
+  $('#climbSub').textContent=`Step ${c.step} of 5 · ${name} · week ${Math.min(wk,4)} of 4${c.place==='home'?' · home':''}`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.k){const o=store.get('vault:setup',{cal:'o35',place:'gym',step:1});o[b.dataset.k]=b.dataset.k==='step'?+b.dataset.v:b.dataset.v;store.set('vault:setup',o);renderToday();return}
+  if(b.id==='begin'){startClimb(store.get('vault:setup',{cal:'o35',place:'gym',step:1}));renderToday();window.scrollTo(0,0)}
+});
+$('#orientVid').innerHTML=vidHTML('orientation');
+load().then(d=>{D=d;renderToday()}).catch(()=>{$('#today').innerHTML='<div class="err">The workouts did not load. Check your connection and refresh.</div>'});
+</script>

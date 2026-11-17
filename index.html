@@ -1,0 +1,230 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+/* List view: one workout day on one page. Sticky header with phase, workout and day pickers, then one card per
+   circuit. Tick sets as you go; the last exercise of a circuit starts the rest timer. Link: index.html#tt-1-d2 */
+body{padding-top:0;padding-bottom:120px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 10px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+.pick{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pick button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 13px;font:500 14px/1 var(--body)}
+.pick button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pick button.is-done::after{content:" ✓"}
+.pick.phases button{text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.intro .quote{font:700 22px/1.15 var(--display);color:var(--brand)}
+.ss{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.ss-head{display:flex;justify-content:space-between;align-items:baseline;padding:14px 16px 4px;gap:8px}
+.ss-head span{font-size:13px;color:var(--muted)}
+.ss.complete{border-color:var(--done)}
+.ss.complete .ss-head span{color:var(--done);font-weight:600}
+.ex{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-top:1px solid var(--line)}
+.ex:first-of-type{border-top:0}
+.ex h3{font:600 18px/1.25 var(--body)}
+.ex .sub{font-size:13px;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.sets{display:flex;gap:6px;flex-wrap:wrap}
+.sets button{min-width:46px;height:42px;padding:0 10px;border-radius:11px;border:2px solid var(--line);background:var(--bg);font:500 14px/1 var(--body);white-space:nowrap}
+.sets button[aria-pressed="true"]{background:var(--done);border-color:var(--done);color:#fff}
+.wt{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.wt input{width:72px;text-align:center;font-weight:600;color:var(--ink)}
+.links{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.swapb{border:1px dashed var(--brand);background:transparent;color:var(--brand);border-radius:999px;padding:7px 12px;font:500 13px/1.2 var(--body)}
+.swapb.on{background:var(--gold);border:1px solid var(--gold);color:#2b2118}
+.rest{position:relative;overflow:hidden;background:var(--brand);color:#fff;border-radius:16px;padding:16px 16px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rest.hold{background:var(--ink);color:var(--bg)}
+.rest .t{font:700 48px/1 var(--body);font-variant-numeric:tabular-nums;min-width:2.3ch}
+.rest .lbl{flex:1;min-width:120px;font-size:14px;font-weight:600}
+.rest .lbl small{display:block;opacity:.85;font-weight:400}
+.rest .btns{display:flex;gap:8px;flex:none}
+.rest button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:12px;padding:10px 14px;font-weight:600;white-space:nowrap}
+.bar{position:absolute;left:0;top:0;height:5px;background:var(--gold);transition:width 1s linear}
+.finish{border:0;background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:18px;font:600 18px/1 var(--body);letter-spacing:.04em;width:100%}
+.finish:disabled{opacity:.45;cursor:default}
+.done-card{background:var(--done-soft);border:1px solid var(--done);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.done-card h2{color:var(--done)}
+.done-card button{align-self:flex-start;border:1px solid var(--done);background:transparent;color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:600;margin-top:4px}
+.howto{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.howto ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.howto .got{align-self:flex-start;border:0;background:var(--brand);color:#fff;border-radius:12px;padding:10px 16px;font-weight:600;margin-top:4px}
+.howto-link{align-self:flex-start;border:0;background:none;color:var(--brand);font-weight:600;padding:0;text-decoration:underline}
+.alllist{display:flex;flex-direction:column;gap:14px}
+.alllist .ph{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.alllist .ws{display:flex;flex-direction:column;gap:6px}
+.alllist .w{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.alllist .w b{font-weight:600}
+.alllist .w .days{display:flex;gap:6px}
+.alllist .w .days a{text-decoration:none;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:7px 10px;font:500 13px/1 var(--body);background:var(--card)}
+.alllist .w .days a.done{background:var(--done-soft);border-color:var(--done)}
+</style>
+<div class="wrap">
+  <header class="top">
+    <a class="back" href="start.html">← Home</a>
+    <div class="pick phases" id="phasePick"></div>
+    <h1 id="title">Loading…</h1>
+    <div class="pick" id="workoutPick"></div>
+    <div class="pick" id="dayPick"></div>
+  </header>
+  <section id="howto"></section>
+  <section id="intro"></section>
+  <main id="workout" class="wrap" style="gap:14px"></main>
+</div>
+<script src="vault.js"></script>
+<script>
+// Michelle's explainer video for each phase (YouTube id, unlisted). Empty until uploaded.
+const PHASE_VIDEO={flf:'',tt:'',ml:'',mb:''};
+const state={phase:null,workout:null,dayId:null,lock:'none',openVid:{},justOpened:null};
+let D=null, timer=null, rest=null;
+const place=()=>(climb()||store.get('vault:setup',{})).place||'gym';
+const setPlace=v=>{const c=climb();if(c){c.place=v;setClimb(c)}else{const o=store.get('vault:setup',{});o.place=v;store.set('vault:setup',o)}};
+const key=()=>`vault:day:${state.dayId}`;
+
+function restHTML(){
+  if(!rest) return '';
+  return `<div class="rest ${rest.kind}" role="timer"><div class="bar" id="bar" style="width:${rest.total?100*(rest.total-rest.left)/rest.total:0}%"></div>
+    <div class="t" id="tLeft">${Math.max(rest.left,0)}</div><div class="lbl">${rest.kind==='hold'?'Hold':'Rest'}<small>${esc(rest.label)}</small></div>
+    <div class="btns">${rest.kind==='hold'?'':'<button data-rest="plus">+15s</button>'}<button data-rest="skip">${rest.kind==='hold'?'Stop':'Skip'}</button></div></div>`;
+}
+function howtoHTML(day){
+  if(store.get('vault:howto',false)) return `<button class="howto-link" data-howto="show">How this works</button>`;
+  const c=day.blocks[0].exercises.map(e=>e.code);
+  return `<div class="howto"><h3>How to read this</h3><ol>
+    <li>Letters before numbers. ${c.map(x=>`<b>${esc(x)}</b>`).join(' → ')} is one circuit: do them back to back, then rest for the time shown on the last one.</li>
+    <li>Tap <b>Set 1</b> when a set is done. Ticking the last exercise of the circuit starts the rest timer.</li>
+    <li>Type the weight you used. Next time it shows you what you lifted.</li>
+    <li>Can't do a move? Tap <b>Swap</b>. Same muscles, same reps and sets.</li></ol>
+    <p>Rather be walked through it? Tap <b>Play</b> above. Need paper? <b>Print</b>.</p><button class="got" data-howto="hide">Got it</button></div>`;
+}
+function renderAll(){
+  $('#phasePick').innerHTML='';$('#workoutPick').innerHTML='';$('#dayPick').innerHTML='';$('#howto').innerHTML='';
+  $('#title').textContent='All workouts';
+  const pl=place();
+  $('#intro').innerHTML=`<div class="intro"><p class="note">Four phases, 16 workouts, 3 days each. Climb the phases in order, four weeks each. Run one workout from a phase for its four weeks, then next time round pick the next one.</p>
+    <div class="toolrow"><span class="seg"><button data-place="gym" aria-pressed="${pl==='gym'}">Gym</button><button data-place="home" aria-pressed="${pl==='home'}">Home</button></span><a class="pill" href="print.html">🖨 Print</a></div></div>`;
+  $('#workout').innerHTML=`<div class="alllist">${D.phases.map(p=>`<div class="ph"><span class="eyebrow">Step ${p.step} · ${esc(p.tag)}</span><h2>${esc(p.name)}</h2><p class="note">${esc(p.reps)} · ${esc(p.load)}</p>
+    <div class="ws">${p.workouts.filter(w=>!w.home).map(w=>{const pw=placed(D,w,pl);return `<div class="w"><b>${esc(w.name)}${pw.id!==w.id?' <span class="sub" style="font-weight:400;color:var(--muted)">home</span>':''}</b><span class="days">${pw.days.map(d=>`<a href="index.html#${d.id}" class="${store.get('vault:day:'+d.id,{}).finished?'done':''}">Day ${d.day}</a>`).join('')}</span></div>`}).join('')}</div></div>`).join('')}
+    <div class="ph"><span class="eyebrow">Step 5</span><h2>${esc(D.reset.name)}</h2><p class="note">${esc(D.reset.about)}</p></div></div>`;
+}
+function render(){
+  if(state.lock==='all'){renderAll();return}
+  const pl=place();
+  const x=dayPlaced(D,state.dayId,pl); const {phase:p,workout:w,day}=x; state.dayId=day.id;
+  $('#phasePick').innerHTML=state.lock==='none'||state.lock==='phase'?D.phases.map(q=>`<button aria-pressed="${q.id===p.id}" data-phase="${q.id}">${esc(q.short)}</button>`).join(''):`<span class="eyebrow">Step ${p.step} · ${esc(p.name)}</span>`;
+  $('#title').textContent=`${w.name.replace(' · Home','')} · Day ${day.day}`;
+  const base=p.workouts.filter(q=>!q.home);
+  $('#workoutPick').innerHTML=(state.lock!=='workout'&&state.lock!=='day'&&base.length>1)?base.map(q=>`<button aria-pressed="${q.base===w.base}" data-workout="${q.id}">${esc(q.name)}</button>`).join(''):'';
+  $('#dayPick').innerHTML=w.days.map(dd=>`<button aria-pressed="${dd.id===day.id}" data-day="${dd.id}" class="${store.get('vault:day:'+dd.id,{}).finished?'is-done':''}">Day ${dd.day}</button>`).join('');
+  const v=PHASE_VIDEO[p.id];
+  const vid=v?(EMBED_OK?(state.openVid.intro===v?`<button class="demo" data-embed="${v}" data-code="intro">✕ Close video</button><div class="embed"><iframe src="https://www.youtube-nocookie.com/embed/${v}?rel=0&modestbranding=1&playsinline=1&autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`:`<button class="demo" data-embed="${v}" data-code="intro">▶ Watch Michelle explain this phase</button>`):`<a class="demo" href="https://www.youtube.com/watch?v=${v}" target="_blank" rel="noopener">▶ Watch Michelle explain this phase</a>`):'';
+  $('#intro').innerHTML=`<div class="intro"><div class="quote">“${esc(p.quote)}”</div>
+    <div class="chips"><span class="chip hot">${esc(p.reps)}</span><span class="chip">${esc(p.load)}</span><span class="chip">${day.n} exercises · ~${day.minutes} min</span>${w.home?'<span class="chip gold">Home version</span>':''}</div>
+    <p class="note">${esc(p.about)}</p>${vid}
+    <div class="toolrow"><span class="seg"><button data-place="gym" aria-pressed="${pl==='gym'}">Gym</button><button data-place="home" aria-pressed="${pl==='home'}">Home</button></span><a href="play.html#${esc(day.id)}" class="pill play">▶ Play</a><a href="print.html#${esc(day.id)}" class="pill" target="_blank" rel="noopener">🖨 Print</a></div></div>`;
+  $('#howto').innerHTML=howtoHTML(day);
+  const saved=store.get(key(),{ticks:{}});
+  let allDone=true;
+  let html=day.blocks.map(b=>{
+    const n=b.exercises.length, kind=n===1?'':n===2?'Superset':'Circuit';
+    const maxSets=Math.max(...b.exercises.map(e=>e.sets||1));
+    const complete=b.exercises.every(e=>(saved.ticks[e.code]||[]).filter(Boolean).length>=(e.sets||1));
+    if(!complete) allDone=false;
+    const last=b.exercises[n-1];
+    const head=`<div class="ss-head"><h3>${esc(b.label)}${kind?` · ${kind}`:''}</h3><span>${complete?'Done':(n>1?`${b.exercises.map(e=>e.code).join(' → ')}, then rest${last.restSeconds?' '+last.restSeconds+'s':''}`:'')}</span></div>`;
+    return `<section class="ss ${complete?'complete':''}">${head}`+b.exercises.map(e0=>{
+      const e=shownEx(D,day.id,e0,pl);
+      const t=saved.ticks[e.code]||[];
+      const sets=e.sets||1;
+      const btns=Array.from({length:sets},(_,i)=>`<button aria-pressed="${!!t[i]}" aria-label="Set ${i+1} of ${esc(e.name)}" data-tick="${e.code}" data-i="${i}">Set ${i+1}</button>`).join('');
+      const vidBtn=e.video?(EMBED_OK?`<button class="demo" data-embed="${esc(e.video)}" data-code="${e.code}">${state.openVid[e.code]?'✕ Close':'▶ Watch demo'}</button>`:`<a class="demo" href="https://www.youtube.com/watch?v=${esc(e.video)}" target="_blank" rel="noopener">▶ Watch demo</a>`):'';
+      const hs=holdSeconds(e);
+      const sp=special(e);
+      const lw=lastWeight(e.video||e.name);
+      const open=state.openVid[e.code];
+      const tempo=e.tempo?`<span class="chip" title="${esc(TEMPO_WORDS(e.tempo))}">tempo ${esc(e.tempo)}</span>`:'';
+      return `<div class="ex" id="ex-${e.code}">
+        ${picHTML(D,e,true)}
+        <div><h3><span class="code ${e.swapped?'swap':''}">${esc(e.code)}</span>${esc(e.name)}</h3>
+          ${e.swapped?`<div class="sub">Swapped in for ${esc(e.orig)}</div>`:e.gymName?`<div class="sub">At the gym: ${esc(e.gymName)}</div>`:''}</div>
+        <div class="chips">${e.reps?`<span class="chip hot">${esc(e.reps)} reps</span>`:''}${sets?`<span class="chip">${esc(setsLabel(e))}</span>`:''}${e.restSeconds?`<span class="chip">rest ${e.restSeconds}s${e.activeRest?' active':''}</span>`:''}${tempo}</div>
+        ${e.tempo?`<div class="sub">Tempo ${esc(e.tempo)}: ${esc(TEMPO_WORDS(e.tempo))} (seconds)</div>`:''}
+        ${sp?`<p class="note">${esc(sp)}</p>`:''}
+        <div class="row"><div class="sets">${btns}${hs?`<button data-hold="${e.code}" data-sec="${hs}">⏱ ${hs}s hold</button>`:''}</div>
+          <label class="wt">Weight <input type="number" inputmode="decimal" step="0.5" min="0" data-wt="${esc(e.video||e.name)}" value="${lw&&lw.d===TODAY?lw.w:''}" placeholder="${lw?'last '+lw.w:'lb'}"> lb</label></div>
+        <div class="links">${vidBtn}<button class="swapb ${e.swapped?'on':''}" data-swap="${e.code}">⇄ ${e.swapped?'Swapped · change':'Swap'}</button></div>
+        ${open&&EMBED_OK?`<div class="embed"><iframe src="https://www.youtube-nocookie.com/embed/${esc(open)}?rel=0&modestbranding=1&playsinline=1${state.justOpened===e.code?'&autoplay=1':''}" title="${esc(e.name)} demo" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`:''}
+        ${rest&&rest.code===e.code?restHTML():''}
+      </div>`}).join('')+`</section>`}).join('');
+  state.justOpened=null;
+  if(saved.finished) html=`<div class="done-card"><h2>Day ${day.day} is done</h2><p>Nice work. Drink some water. ${esc(nextLine(w,day))}</p><button data-reset="1">Do it again another day</button></div>`+html;
+  else html+=`<button class="finish" id="finish" ${allDone?'':'disabled'}>${allDone?'Finish workout':'Tick every set to finish'}</button>`;
+  $('#workout').innerHTML=html;
+}
+function nextLine(w,day){const nx=w.days.find(x=>x.day===day.day+1);return nx?`Next is Day ${nx.day}.`:'That was the last day of this workout. Next time, back to Day 1.'}
+function beep(){
+  try{const c=new (window.AudioContext||window.webkitAudioContext)();const g=c.createGain();g.connect(c.destination);g.gain.value=.25;
+    const o=c.createOscillator();o.connect(g);o.frequency.value=880;o.start();o.stop(c.currentTime+.18);
+    const o2=c.createOscillator();o2.connect(g);o2.frequency.value=1175;o2.start(c.currentTime+.22);o2.stop(c.currentTime+.45)}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([150,80,150])}catch(e){}
+}
+function startRest(code,sec,label,kind='rest'){
+  clearInterval(timer);rest={code,left:sec,total:sec,label,kind,ends:Date.now()+sec*1000};
+  timer=setInterval(()=>{rest.left=Math.ceil((rest.ends-Date.now())/1000);tick();if(rest.left<=0){beep();stopRest(true)}},250);
+}
+function tick(){const t=$('#tLeft'),b=$('#bar');if(!t||!rest)return;t.textContent=Math.max(rest.left,0);b.style.width=(rest.total?100*(rest.total-rest.left)/rest.total:0)+'%'}
+function stopRest(rerender){clearInterval(timer);timer=null;rest=null;if(rerender)render()}
+
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&rest)tick()});
+document.addEventListener('change',e=>{const i=e.target.closest('input[data-wt]');if(i&&i.value!=='')saveWeight(i.dataset.wt,+i.value)});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.phase){const p=phaseById(D,b.dataset.phase);state.dayId=p.workouts.find(w=>!w.home).days[0].id;stopRest();render();return}
+  if(b.dataset.workout){state.dayId=workoutById(D,b.dataset.workout).days[0].id;stopRest();render();return}
+  if(b.dataset.day){state.dayId=b.dataset.day;stopRest();render();window.scrollTo(0,0);return}
+  if(b.dataset.place){setPlace(b.dataset.place);stopRest();render();return}
+  if(b.dataset.tick){
+    const {workout:w,day}=dayPlaced(D,state.dayId,place());
+    const s=store.get(key(),{ticks:{}});const arr=s.ticks[b.dataset.tick]||[];const i=+b.dataset.i;arr[i]=!arr[i];s.ticks[b.dataset.tick]=arr;store.set(key(),s);
+    if(arr[i]){
+      const blk=day.blocks.find(x=>x.exercises.some(y=>y.code===b.dataset.tick));const ex=blk.exercises.find(y=>y.code===b.dataset.tick);
+      if(ex.restSeconds>0){const more=i+1<(ex.sets||1);const first=blk.exercises[0];
+        startRest(ex.code,ex.restSeconds,blk.exercises.length>1?(more?`Round ${i+1} of ${blk.label} done · then back to ${first.code} for round ${i+2}`:`${blk.label} done · on to the next circuit`):(more?`Set ${i+1} done · then set ${i+2}`:`Set ${i+1} done · last one`))}
+    }
+    render();return;
+  }
+  if(b.dataset.hold){startRest(b.dataset.hold,+b.dataset.sec,'Hold the hardest point','hold');render();return}
+  if(b.dataset.rest){if(b.dataset.rest==='skip'){stopRest(true);return}if(rest){rest.ends+=15000;rest.total+=15;rest.left+=15;tick()}return}
+  if(b.dataset.howto){store.set('vault:howto',b.dataset.howto==='hide');render();return}
+  if(b.dataset.embed){const c=b.dataset.code;if(state.openVid[c]===b.dataset.embed)delete state.openVid[c];else{state.openVid[c]=b.dataset.embed;state.justOpened=c}render();return}
+  if(b.dataset.swap){const {day}=dayPlaced(D,state.dayId,place());const e0=day.blocks.flatMap(x=>x.exercises).find(y=>y.code===b.dataset.swap);openSwap(D,day.id,shownEx(D,day.id,e0,place()),place(),render);return}
+  if(b.dataset.reset){store.set(key(),{ticks:{}});stopRest();render();return}
+  if(b.id==='finish'&&!b.disabled){
+    const {phase:p,workout:w,day}=dayPlaced(D,state.dayId,place());
+    const s=store.get(key(),{ticks:{}});s.finished=Date.now();store.set(key(),s);logDone(day,w,p);
+    stopRest();render();window.scrollTo({top:0,behavior:'smooth'});return;
+  }
+});
+// #tt-1-d2 = one day. #tt-1 = that workout, day pickers. #tt = the phase. #all = everything.
+if(!location.hash&&window.top===window.self)location.replace('start.html');
+async function readHash(){
+  const d=await load();
+  const h=decodeURIComponent(location.hash.replace(/^#/,'')).toLowerCase();
+  if(h==='all'||!h){state.lock='all';return}
+  const day=dayById(d,h), w=workoutById(d,h), p=phaseById(d,h);
+  if(day){state.dayId=day.day.id;state.lock='day'}
+  else if(w){state.dayId=w.days[0].id;state.lock='workout'}
+  else if(p){state.dayId=p.workouts.find(x=>!x.home).days[0].id;state.lock='phase'}
+  else{state.lock='all'}
+}
+load().then(d=>{D=d;return readHash()}).then(render).catch(e=>{$('#workout').innerHTML=`<div class="err">The workouts didn't load. Check your connection and refresh the page.</div>`});
+window.addEventListener('hashchange',()=>{readHash().then(()=>{stopRest();render()})});
+</script>

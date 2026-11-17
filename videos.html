@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Michelle explains · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>.v{display:flex;flex-direction:column;gap:6px}.v small{color:var(--muted);font-size:14px}</style>
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">The lessons</span><h1>Michelle explains</h1><p class="lead">Short videos on how the system works. Watch the orientation first. The rest live next to the tool they explain, too.</p></header>
+  <section class="ways" id="list"></section>
+  <section class="card"><h3>More in the members area</h3><p>The Vault Playbook (8 lessons on plateaus, cardio, intensity, tempo and rest), the Workout Designer Workshop and your bonuses are in the course where you logged in.</p></section>
+</div>
+<script src="vault.js"></script>
+<script>
+const ORDER=[['orientation','Where everything is and how to start.'],['blueprint','Why most women plateau, and the five phases that fix it.'],['ladder','The 5-step progression. Reps, load, tempo and rest per step.'],['calU35','3 toning days plus 2 cardio days.'],['calO35','5 days, toning only, with repeats and spice days.'],['spice','Seven ways to season a workout without changing it.'],['journal','The weekly five-minute reflection.']];
+function render(){$('#list').innerHTML=ORDER.map(([k,sub])=>`<div class="card v"><h3>${esc(VIDS[k][0])}</h3><small>${esc(sub)}</small>${vidHTML(k,'Watch')}</div>`).join('')}
+render();
+document.addEventListener('click',e=>{if(e.target.closest('button[data-vid]'))setTimeout(()=>{},0)});
+</script>

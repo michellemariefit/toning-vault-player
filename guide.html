@@ -1,0 +1,89 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How to run the Vault · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+.circuit{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-weight:600}
+.circuit span{background:var(--brand);color:#fff;border-radius:8px;padding:6px 10px}
+.circuit i{color:var(--muted);font-style:normal}
+.circuit .r{background:var(--gold);color:#2b2118}
+ol.rules{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+ol.rules b{display:block}
+dl{margin:0;display:flex;flex-direction:column;gap:8px}
+dt{font-weight:600}
+dd{margin:0;color:var(--muted);font-size:15px}
+.rung{grid-template-columns:36px 1fr}
+</style>
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">The Workout Guide</span><h1>How to run the Vault</h1><p class="lead">The whole system on one page. The body gets bored. The Ladder does not.</p></header>
+
+  <section class="card">
+    <h2>One full cycle = 16 weeks</h2>
+    <p>Four phases, four weeks each. Run one workout from each phase for its four weeks. Climb phase to phase in order. When you reach the top, Reset, drop back to Fat Loss Foundation with the next workout in line, and climb again. Then you do it for the rest of your life.</p>
+    <div class="ladder" id="ladder"></div>
+  </section>
+
+  <section class="card">
+    <h2>Anatomy of a circuit</h2>
+    <div class="circuit"><span>A1</span><i>→</i><span>A2</span><i>→</i><span>A3</span><i>→</i><span>A4</span><i>→</i><span class="r">rest</span></div>
+    <p>Letters before numbers. Everything with the same letter is one circuit: do the moves back to back, then rest for the time on the last one. Then go again for the next set. Finish the full letter before moving to the next letter.</p>
+    <p>In the app the rest timer starts itself when you tick the last exercise of the circuit (List) or press Done on it (Play).</p>
+  </section>
+
+  <section class="card">
+    <h2>The nine rules</h2>
+    <ol class="rules">
+      <li><b>Three workouts a week.</b> Day 1, 2 and 3 across the four-week phase. Consistency beats intensity.</li>
+      <li><b>Letters before numbers.</b> A1, A2, A3, A4 is one circuit. Finish the letter before resting.</li>
+      <li><b>Read top to bottom.</b> The workout is a script. The app plays it for you.</li>
+      <li><b>Tap the demo when in doubt.</b> Every exercise has Michelle's video clip under it.</li>
+      <li><b>Train to momentary failure.</b> The exact moment you couldn't squeeze one more clean rep. Stop there.</li>
+      <li><b>Can't finish the reps?</b> Drop the weight and keep going, or stop where you fatigued and go lighter on the next set. You will get stronger every week.</li>
+      <li><b>Write the weight down.</b> The app keeps it for you. Next time, beat it or match it.</li>
+      <li><b>Add cardio between</b> (Under 35 calendar), or your 4th and 5th days (Over 35). It stacks.</li>
+      <li><b>Spices go on extra workouts only.</b> Never on your three main days. One per workout.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>Tempo</h2>
+    <p>Three numbers, in seconds: <b>down · hold · up</b>. Tempo 2-0-1 means lower for 2 seconds, no pause, lift in 1. 3-1-1 means 3 down, pause 1, up in 1. The lowering is where the muscle builds the most, so don't rush it. Pulses show two tempos: the full reps, then the pulses.</p>
+  </section>
+
+  <section class="card">
+    <h2>Words you'll see</h2>
+    <dl>
+      <dt>Pulses (Foundation phase)</dt><dd>Small, quick reps in the hardest part of the move. Keep the tension on the muscle the whole time.</dd>
+      <dt>Isometric hold</dt><dd>On the last rep, hold the hardest point for 20 to 30 seconds. The app gives you a timer.</dd>
+      <dt>21's</dt><dd>7 reps bottom half, 7 reps top half, 7 full reps. 21 in a row, no rest.</dd>
+      <dt>1½ reps</dt><dd>All the way down, halfway up, back down, all the way up. That is one rep.</dd>
+      <dt>Pyramid set</dt><dd>10 reps at a time, going up in weight, then back down. Written as 10-10-10-10-10-10. No rest between the tens.</dd>
+      <dt>Drop set</dt><dd>Lighter weight each time, no rest. Written as 20-19-18-17-16-15: 20 reps, drop the weight, 19, drop, 18, and so on.</dd>
+      <dt>Per side</dt><dd>The reps are for each side.</dd>
+      <dt>Active rest</dt><dd>Rest, but keep moving at an easy pace. March, walk, shake it out.</dd>
+      <dt>Home version</dt><dd>Most workouts have a home version with the gym moves swapped for dumbbells, a band or a stability ball. Pick Home at the top of any workout.</dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>Before you start</h2>
+    <p>Block out every workout for the month. Decide ahead of time which workout you're running. Put the app on your home screen so it's one tap away even when the wifi is moody.</p>
+    <div class="toolrow"><a class="pill" href="checklist.html">The checklist</a><a class="pill" href="install.html">Home screen</a><a class="pill" href="climb.html">The Climb</a></div>
+  </section>
+</div>
+<script src="vault.js"></script>
+<script>
+load().then(D=>{
+  const rows=[...D.phases.map(p=>({n:p.step,name:p.name,tag:p.tag,reps:p.reps,about:p.about})),{n:5,name:D.reset.name,tag:D.reset.tag,reps:D.reset.reps,about:D.reset.about}];
+  $('#ladder').innerHTML=rows.map(r=>`<div class="rung"><div class="num" style="color:var(--gold)">${r.n}</div><div><b>${esc(r.name)}</b><small>${esc(r.tag)} · ${esc(r.reps)}</small><small>${esc(r.about)}</small></div></div>`).join('');
+});
+</script>

@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Climb · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+/* The Toning Ladder tracker. Five rungs, four weeks each. Week boxes fill from finished workouts. */
+.settings{display:flex;flex-direction:column;gap:10px}
+.settings .r{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.settings select{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.danger{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 12px;font-size:13px}
+</style>
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">The Toning Ladder</span><h1>The Climb</h1><p class="lead">Four weeks a step. Every step your body changes. When you reach the top, drop back to Step 1 and climb again, with the next workout of each phase.</p></header>
+  <section id="top"></section>
+  <section class="card" id="vids"></section>
+  <section class="ladder" id="ladder"></section>
+  <section class="card settings" id="settings"></section>
+  <section class="card">
+    <h3>How the boxes fill</h3>
+    <p>A week box fills when you finish 3 workouts in that week (ticked from Play or List). Half-filled means you did 1 or 2. You decide when to climb: the button lights up after week 4, but it's your call either way. Consistent for four weeks and feeling stronger? Climb.</p>
+  </section>
+</div>
+<script src="vault.js"></script>
+<script>
+let D=null;
+function weekBoxes(c,step){
+  // for the current step: count finished workouts per week since stepStart. Past steps come from the climb history.
+  const hist=store.get('vault:climbHist',[]);
+  if(step<c.step||(step===5&&c.step===5&&false)){const h=[...hist].reverse().find(h=>h.step===step&&h.cycle===c.cycle);return h?h.weeks:[3,3,3,3]}
+  if(step>c.step) return [0,0,0,0];
+  const start=monday(parseYmd(c.stepStart));
+  return [0,1,2,3].map(i=>{const m=new Date(start.getTime()+i*7*DAY);return doneInWeek(m).length});
+}
+function render(){
+  const c=climb();
+  if(!c){$('#top').innerHTML=`<div class="card soft"><h3>Start the Climb first</h3><p>Three questions on the home page.</p><a class="go" href="start.html">Go to Home</a></div>`;$('#ladder').innerHTML='';$('#settings').innerHTML='';return}
+  const wk=stepWeek(c), w=currentWorkout(D,c);
+  const steps=[...D.phases.map(p=>({step:p.step,name:p.name,tag:p.tag,reps:p.reps,load:p.load,id:p.id})),{step:5,name:D.reset.name,tag:D.reset.tag,reps:D.reset.reps,load:D.reset.load,id:'reset'}];
+  const cur=steps.find(s=>s.step===c.step);
+  $('#top').innerHTML=`<div class="card soft"><span class="eyebrow">Now · cycle ${c.cycle||1}</span><h2>Step ${c.step} · ${esc(cur.name)}</h2><p><b>Week ${Math.min(wk,4)} of 4</b>${wk>4?` (actually week ${wk}: four weeks are done)`:''} · ${esc(w.name)}${c.place==='home'?' · home':''} · started ${esc(c.stepStart)}</p>
+    <p>${esc(cur.reps)}. ${esc(cur.load)}.</p>
+    <button class="go ${wk>4?'gold':'quiet'}" id="climb">${c.step===5?'Back to Step 1, next workouts':'Climb to Step '+(c.step+1)}</button>
+    ${wk<=4?'<p class="note">Not four weeks yet. Climb anyway if you have been consistent and the weights feel easy.</p>':''}</div>`;
+  $('#vids').innerHTML=`<h3>Michelle explains</h3>${vidHTML('ladder')}${vidHTML('blueprint')}`;
+  $('#ladder').innerHTML=steps.map(s=>{
+    const boxes=weekBoxes(c,s.step);const now=s.step===c.step;
+    return `<div class="rung ${now?'now':s.step<c.step?'past':''}"><div class="num">${s.step}</div><div><b>${esc(s.name)}</b><small>${esc(s.tag)} · ${esc(s.reps)}</small>
+      <div class="wks">${boxes.map((n,i)=>`<span class="${n>=3?'on':n>0?'part':''} ${now&&i===Math.min(wk,4)-1?'cur':''}">${now||s.step<c.step?(n>=3?'✓':n>0?n+'/3':'wk '+(i+1)):'wk '+(i+1)}</span>`).join('')}</div></div></div>`}).join('');
+  const picks=D.phases.map(p=>{const base=p.workouts.filter(x=>!x.home);const n=((c.picks[p.id]||1)-1)%base.length;
+    return `<div class="r"><span>${esc(p.name)}</span><select data-pick="${p.id}">${base.map((b,i)=>`<option value="${i+1}" ${i===n?'selected':''}>${esc(b.name)}</option>`).join('')}</select></div>`}).join('');
+  $('#settings').innerHTML=`<h3>Settings</h3>
+    <div class="r"><span>Calendar</span><span class="seg"><button data-cal="u35" aria-pressed="${c.cal==='u35'}">Under 35</button><button data-cal="o35" aria-pressed="${c.cal==='o35'}">Over 35</button></span></div>
+    <div class="r"><span>Where you train</span><span class="seg"><button data-place="gym" aria-pressed="${c.place==='gym'}">Gym</button><button data-place="home" aria-pressed="${c.place==='home'}">Home</button></span></div>
+    <p class="note">Which workout of each phase you're running this cycle. Each cycle the app moves to the next one. Change it if you'd rather.</p>${picks}
+    <div class="r"><span class="note">Step start date ${esc(c.stepStart)}</span><button class="danger" id="restart">Start the Climb over</button></div>`;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;const c=climb();
+  if(b.id==='climb'){
+    if(!confirm(c.step===5?'Back to Step 1 with the next workout of each phase?':`Climb to Step ${c.step+1}? The week count starts again from today.`))return;
+    const hist=store.get('vault:climbHist',[]);hist.push({step:c.step,cycle:c.cycle||1,start:c.stepStart,end:TODAY,weeks:weekBoxes(c,c.step)});store.set('vault:climbHist',hist.slice(-40));
+    climbUp(D);render();window.scrollTo(0,0);return}
+  if(b.dataset.cal){c.cal=b.dataset.cal;setClimb(c);render();return}
+  if(b.dataset.place){c.place=b.dataset.place;setClimb(c);render();return}
+  if(b.id==='restart'){if(!confirm('Start over at Step 1, week 1? Your workout log and weights stay.'))return;store.del('vault:climb');store.del('vault:climbHist');location.href='start.html'}
+});
+document.addEventListener('change',e=>{const s=e.target.closest('select[data-pick]');if(!s)return;const c=climb();c.picks[s.dataset.pick]=+s.value;setClimb(c);render()});
+load().then(d=>{D=d;render()});
+</script>

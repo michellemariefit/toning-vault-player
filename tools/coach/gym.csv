@@ -1,0 +1,56 @@
+Movement Pattern,Primary Exercise,Approved Variations,Primary Muscles,Equipment,Default Home Swap,Default Gym Swap
+SQUAT,Squat,Goblet Squat / Box Squat / Heel-Elevated Squat / Plie Squat / Wall Sit / Jump Squat,"Quads, Glutes",DB / BW,Bodyweight Squat to Chair,Leg Press / Smith Machine Squat
+SQUAT,Front Squat,Goblet Squat / Heels Elevated / Smith Front,Quads,DB / Bar,DB Front Squat,Barbell Front Squat
+SQUAT,Step-Up,Reverse Lunge / Walking Lunge / Explosive Step-Up / Bench Step-Up,"Glutes, Quads",DB / BW,Stair Step-Up,Weighted Step-Up
+SQUAT,Split Squat,Bulgarian Split / Front-Foot Elevated / Pistol Assist,"Quads, Glutes",DB / BW,Chair Tap Squat,Smith Split Squat
+SQUAT,Plie Squat,Wide Squat / Sumo / Plie Leg Press,"Inner Thigh, Glutes",DB / BW,Wide BW Squat,Plie Leg Press
+SQUAT,Jump Squat,Bodyweight Squat / Jump Lunge,"Quads, Glutes, Calves",BW,Squat Pulse,Smith Speed Squat
+LUNGE,Stationary Lunge,Reverse / Walking / Curtsy,"Quads, Glutes",DB / BW,Reverse BW Lunge,Barbell Lunge
+LUNGE,Reverse Lunge,Step-Up / Split Squat / Curtsy,"Glutes, Hams",DB / BW,Reverse BW Lunge,Cable Reverse Lunge
+LUNGE,Lateral Lunge,Side Step / Cossack,"Adductors, Glutes",DB / BW,BW Side Lunge,Smith Cossack
+LUNGE,Curtsy Lunge,Reverse / Cable Glute Cross,"Glute Med, Quads",DB / Cable,BW Curtsy,Cable Kickback Cross
+HINGE / POSTERIOR CHAIN,Deadlift,RDL / Sumo / Good Morning / Single-Leg RDL,"Hams, Glutes",DB / Barbell,SL RDL BW,Barbell RDL
+HINGE / POSTERIOR CHAIN,Hip Thrust,Glute Bridge / Banded Bridge / Frog Pump / Stability Ball Bridge,"Glutes, Hams",BW / Band / Ball,Floor Bridge,Barbell Hip Thrust
+HINGE / POSTERIOR CHAIN,Stability Ball Leg Curl,Towel Ham Curl / Hamstring Slide / Seated Ham Curl,Hams,Ball / Towel / Machine,Towel Ham Curl,Seated Ham Curl
+HINGE / POSTERIOR CHAIN,Good Morning,Cable Pull-Through / RDL,"Hams, Erectors",Bar / Cable,Banded Hinge,Cable Pull-Through
+HINGE / POSTERIOR CHAIN,Stability Ball Hip Extension,SL Bridge / Kickback / Frog Pump,Glutes,Ball / BW,Single-Leg Bridge,Back Extension Machine
+PUSH – HORIZONTAL,Incline DB Press,Flat DB Press / Decline / Push-Up,"Chest, Shoulders, Triceps",DB / BW / Machine,Elevated Push-Up,Incline Chest Press Machine
+PUSH – HORIZONTAL,Decline DB Press,Flat / Incline / Push-Up Decline,Chest,DB / BW,Decline Push-Up,Decline Machine Press
+PUSH – HORIZONTAL,Push-Up,Knee / Bench / Band-Resisted / Tempo Hold,"Chest, Triceps",BW / Band,Incline Push-Up,Weighted Push-Up
+PUSH – HORIZONTAL,Cable Fly,DB Fly / Band Fly / Stability Ball Fly,Chest,Cable / Band / DB,Band Fly,Pec Deck
+PUSH – HORIZONTAL,Dumbbell Press,Neutral Grip / Tempo Press / Stability Ball Press,Chest / Shoulders,DB,Push-Up,Machine Chest Press
+PUSH – VERTICAL,Shoulder Press,Arnold / Neutral Grip / Seated / Barbell,"Delts, Triceps",DB / Barbell,Band Overhead Press,Machine Shoulder Press
+PUSH – VERTICAL,Upright Row,High Pull / Band Upright / Cable Upright,"Delts, Traps",DB / Band / Cable,Band Upright Row,Smith Upright Row
+PUSH – VERTICAL,Lateral Raise,45° Raise / Cable / Bent-Arm,Medial Delts,DB / Band,Band Lateral Raise,Cable Lateral Raise
+PUSH – VERTICAL,Front Raise,Plate / DB Alt / Band,Front Delts,DB / Plate,Band Front,Cable Front
+PUSH – VERTICAL,Arnold Press,DB Shoulder Press / Standing Press,Delts,DB,Band Press,Machine Press
+PULL – VERTICAL,Lat Pulldown,Underhand / Wide / Band / Assisted Pull-Up,"Lats, Biceps",Cable / Band,Band Pulldown,Pull-Up Machine
+PULL – VERTICAL,Straight-Arm Pulldown,Band Pulldown / Cable Pullover,Lats,Cable / Band,Band Pulldown,Cable Pullover
+PULL – VERTICAL,Pull-Up,Assisted / Negative / Jump + Hold,"Lats, Biceps",BW / Band,Band Pulldown,Machine Assisted Pull-Up
+PULL – HORIZONTAL,Cable Row,Seated / Standing / Band / DB,"Lats, Rhomboids",Cable / Band / DB,Band Row,Seated Row Machine
+PULL – HORIZONTAL,Bent-Over Row,DB / Barbell / Inverted / TRX,"Lats, Rear Delts",DB / Bar / BW,Band Row,T-Bar Row
+PULL – HORIZONTAL,High Row,Face Pull / Reverse Fly,"Rear Delts, Lats",Cable / DB,Band Face Pull,Cable High Row
+PULL – HORIZONTAL,Single Arm DB Row,Supported / Unsupported / Cable,Lats,DB / Cable,Band Row,Machine Row
+BICEPS,DB Curl,Hammer / Twisting / Supine Incline / Concentration,Biceps,DB / Cable,Band Curl,Cable Curl
+BICEPS,Hammer Curl,Rope / Neutral / Incline,Biceps Brachialis,DB / Cable,Band Hammer Curl,Rope Curl
+BICEPS,Barbell Curl,EZ Bar / Reverse / Band,Biceps,Bar / Band,Band Curl,Cable Curl
+BICEPS,Incline Curl,Twisting / Lying / Concentration,Biceps,DB,Band Curl,Cable Incline Curl
+TRICEPS,Rope Pulldown,Overhead / Kickback / Underhand Pushdown,Triceps,Cable / Band,Band Pushdown,Rope Pushdown
+TRICEPS,Skull Crusher,Overhead Ext / Close Grip Press / Kickback,Triceps,DB / Barbell,Band Overhead Ext,Cable Pushdown
+TRICEPS,Overhead Extension,Rope / DB / Band Ext / Kickback,Triceps,Cable / DB / Band,Band Overhead,Rope Ext
+TRICEPS,Kickback,Band Kickback / Overhead Ext / Rope Pushdown,Triceps,DB / Band,Band Kickback,Rope Pushdown
+TRICEPS,Dips,Bench Dip / Tricep Push-Up / Chair Dip,"Triceps, Chest",BW / Bench,Chair Dip,Assisted Dip Machine
+CORE / ABS,Plank,Forearm / Side / Arm Walk / Hip Dips / 1-Arm-1-Leg / Elevated,"Core, TA",BW,Elbow Plank,Cable Anti-Rotation
+CORE / ABS,Jackknife,V-Up / Reverse Crunch / Toe Reach,Lower Abs,BW,Floor Jackknife,Cable Crunch
+CORE / ABS,Reverse Crunch,Leg Raise / Bent-Knee / Weighted,Lower Abs,BW,Lying Leg Raise,Hanging Leg Raise
+CORE / ABS,Stability Ball Rollout,Ab Wheel / Wall Walk / SB Transfer / Cable Rollout,Core,Ball / BW / Cable,Towel Rollout,Cable Rollout
+CORE / ABS,Side Plank,Starfish / Modified Side / Hip Lift,"Obliques, TA",BW,Side Plank on Knee,Cable Oblique Hold
+CORE / ABS,Woodchop,Cable Twist / Reverse Oblique Crunch,Obliques,Cable / BW,Standing Twist,Cable Woodchop
+CORE / ABS,Hanging Leg Raise,Reverse Crunch / Stability Ball Pike,Lower Abs,BW,Reverse Crunch,Hanging Leg Raise
+CORE / ABS,Around the World,Front Raise Circle / Plate Halo,Shoulders + Core,Plate / DB,Band Halo,Cable Halo
+CORE / ABS,Stability Ball Abductions,Glute Bridge March / Side Step Band,Glutes + Core,Ball / BW,Bridge March,Abduction Machine
+CORE / ABS,Decline Roll-Down,TA Crunch / Partial Sit-Up,Core,BW,TA Crunch,Cable Crunch
+CORE / ABS,Stability Ball Extend & Crunch,Crunch Hold / Deadbug / TA Breathing,Abs,Ball / BW,Crunch Hold,Cable Crunch
+CORE / ABS,Scoop with Slides,Arm & Leg Slide / Body Saw,"Core, TA",Slide / BW,Floor Slide,Cable Reach
+CORE / ABS,Skiers,Mountain Climber / Jump Lunge,"Glutes, Core",BW,Modified Mountain Climber,Smith Jump Lunge
+CORE / ABS,Arm Walks,Shoulder Taps / Push-Up + Walkout,Core + Shoulders,BW,Shoulder Taps,Renegade Row Walkout

@@ -1,0 +1,72 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Spice Rack · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+.energy{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.energy button{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 8px;font-weight:600}
+.energy button[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
+.sp{display:flex;flex-direction:column;gap:8px}
+.sp .n{font:500 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.sp .ex{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:14px}
+.sp .ex b{color:var(--brand)}
+.sp.pick{border-color:var(--gold);background:var(--gold-soft)}
+.sp .use{align-self:flex-start;border:1px solid var(--brand);background:transparent;color:var(--brand);border-radius:999px;padding:8px 14px;font-weight:600}
+.sp .use.on{background:var(--brand);color:#fff}
+</style>
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">The Spice Rack System</span><h1>Season the workout</h1>
+    <p class="lead">You don't cook chicken the same way every night. Don't train the same way every workout. A spice adds intensity and variety without changing the bones of the workout: same moves, same reps, same sets.</p></header>
+  <section class="card soft">
+    <h3>The rules</h3>
+    <p><b>Start by repeating the workouts as written.</b> Layer in a spice when you're ready.</p>
+    <p><b>One spice per workout.</b> It's a little extra push, not a new plan.</p>
+    <p><b>Only on a 4th or 5th workout of the week</b>, never on your three main Vault days. On the Over 35 calendar those are the Friday repeats and the extra day.</p>
+    <div id="spvid"></div>
+  </section>
+  <section class="card">
+    <h3>How's your energy today?</h3>
+    <div class="energy" id="energy"><button data-e="high">High</button><button data-e="mid">Moderate</button><button data-e="low">Lower</button></div>
+    <p class="note" id="sugg">Pick one and I'll point you at the right spices.</p>
+  </section>
+  <section id="list" class="ways"></section>
+</div>
+<script src="vault.js"></script>
+<script>
+const SPICES=[
+ {id:'drop',name:'Drop Sets',sub:'Heaviest to lightest',e:'high',how:'30 reps total. Start with the heaviest weight you can lift for 10 reps. Drop the weight, 10 more. Drop again, a final 10. No rest between drops.',ex:'Shoulder press · 15 lb × 10 → 10 lb × 10 → 5 to 7 lb × 10.'},
+ {id:'pyramid',name:'Pyramid Sets',sub:'Climb up, climb down',e:'high',how:'50 reps total. Start with a weight that is easy for 10. Go up, 10 more. Up again to your heaviest, 10 more. Rest 10 seconds, then back down: 10 at weight 2, 10 at weight 1.',ex:'Dumbbell squat · 20 × 10 → 25 × 10 → 30 × 10 → 25 × 10 → 20 × 10.'},
+ {id:'21',name:"21's",sub:'Three ranges, one set',e:'mid',how:'Split the movement into three ranges. 7 bottom-half reps, 7 top-half reps, 7 full-range reps. 21 reps, no rest between the parts.',ex:'Bicep curl · 7 bottom (extended to 90°) · 7 top (90° to up) · 7 full range.'},
+ {id:'half',name:'1½ Reps',sub:'Every rep plus a bonus half',e:'mid',how:'One full rep followed by one half rep counts as a single rep. The half rep happens at the hardest point of the move, before you finish the full rep.',ex:'Squat · all the way down → halfway up → back down → all the way up = 1 rep.'},
+ {id:'neg',name:'Negatives',sub:'Slow on the way down',e:'mid',how:'Lift at normal speed. Then lower very slowly, at least 5 to 6 seconds. The slow lowering is where the muscle builds the most.',ex:'Lunge · down in 5 to 6 seconds · pause 1 second at the bottom · up in 2.'},
+ {id:'iso',name:'Isometric Holds',sub:'Pause where it burns',e:'low',how:'Hold the contraction for 20 to 30 seconds wherever the rep is hardest. Then finish the rep. Most effective at the point of most load on the muscle.',ex:'Bicep at 90° · squat at parallel · row at the top · lateral raise at shoulder height.'},
+ {id:'uni',name:'Unilateral / Alternating',sub:'One side at a time',e:'low',how:'Work one side at a time for focus and core engagement. Two options: hold an isometric on one side while the other side does full reps, then switch. Or alternate sides, one arm flexes while the other releases.',ex:'Bicep curl · hold left at 90° while right curls full range, then switch. Or alternate.'},
+];
+const EN={high:'High energy day. Go for Drop Sets or Pyramid Sets.',mid:"Moderate. 21's, 1½ Reps or Negatives are the right size.",low:'Lower energy. An Isometric Hold or Unilateral work keeps the day productive without overdoing it.'};
+let energy=null;
+function render(){
+  const today=store.get('vault:spice',null);const picked=today&&today.d===TODAY?today.id:null;
+  document.querySelectorAll('#energy button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.e===energy));
+  $('#sugg').textContent=energy?EN[energy]:"Pick one and I'll point you at the right spices.";
+  const list=energy?[...SPICES].sort((a,b)=>(a.e===energy?-1:0)-(b.e===energy?-1:0)):SPICES;
+  $('#list').innerHTML=list.map((s,i)=>`<div class="card sp ${energy===s.e?'pick':''}"><span class="n">Spice ${String(SPICES.indexOf(s)+1).padStart(2,'0')} · ${esc(s.sub)}</span><h2>${esc(s.name)}</h2><p>${esc(s.how)}</p><div class="ex"><b>Example</b> ${esc(s.ex)}</div>
+    <button class="use ${picked===s.id?'on':''}" data-use="${s.id}">${picked===s.id?'✓ Using this today':'Use this today'}</button></div>`).join('');
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.e){energy=energy===b.dataset.e?null:b.dataset.e;render();return}
+  if(b.dataset.use){const s=SPICES.find(x=>x.id===b.dataset.use);const cur=store.get('vault:spice',null);
+    if(cur&&cur.d===TODAY&&cur.id===s.id)store.del('vault:spice');else store.set('vault:spice',{d:TODAY,id:s.id,name:s.name,how:s.how});render()}
+});
+$('#spvid').innerHTML=vidHTML('spice');
+render();
+</script>

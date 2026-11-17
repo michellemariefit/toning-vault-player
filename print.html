@@ -1,0 +1,86 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Toning Vault · Print</title>
+<style>
+/* One portrait letter page per workout day, laid out like the original PDFs: exercise, photo, reps, sets, rest, tempo.
+   Black and white friendly. Reads data/vault.json like the player. */
+@page{size:letter portrait;margin:0.4in}
+:root{--ink:#111;--muted:#555;--line:#999}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff;color:var(--ink);font:400 10pt/1.3 "Helvetica Neue",Helvetica,Arial,sans-serif}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #ddd;background:#f6f6f6;font-size:14px}
+.toolbar select,.toolbar button{font:inherit;padding:6px 10px}
+.toolbar button{background:#111;color:#fff;border:0;border-radius:6px;cursor:pointer}
+.toolbar .back{font-weight:700;color:#7a4f5a;text-decoration:none;letter-spacing:.04em;text-transform:uppercase;font-size:13px;margin-right:4px}
+.page{width:7.7in;min-height:9.6in;margin:16px auto;display:flex;flex-direction:column;gap:6pt;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12pt;border-bottom:2px solid var(--ink);padding-bottom:4pt}
+.head h1{margin:0;font:700 22pt/1 Georgia,"Times New Roman",serif}
+.head .eyebrow{font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3pt}
+.head .right{font-size:8.5pt;color:var(--muted);text-align:right}
+.blk{border:1px solid var(--line);border-radius:6pt;overflow:hidden;break-inside:avoid}
+.blk .bh{display:flex;justify-content:space-between;padding:3pt 8pt;background:#eee;font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.cell{display:grid;grid-template-columns:1.55in 1fr;gap:6pt;padding:5pt 8pt;border-top:1px solid #ddd;align-items:center}
+.cell img{width:1.55in;aspect-ratio:450/252;object-fit:cover;border-radius:3pt;display:block}
+.cell .pp{display:grid;grid-template-columns:1fr 1fr;gap:2pt;width:1.55in}.cell .pp img{width:100%;aspect-ratio:16/10}
+.cell h2{margin:0 0 2pt;font-size:9.5pt;line-height:1.15}
+.cell h2 .code{font-size:8pt;border:1.5px solid var(--ink);border-radius:3pt;padding:0 3pt;margin-right:4pt;white-space:nowrap}
+.cell table{border-collapse:collapse;font-size:8pt;width:100%}
+.cell th{font-weight:400;color:var(--muted);text-align:left;letter-spacing:.06em;text-transform:uppercase;font-size:6.5pt;padding:0 4pt 0 0}
+.cell td{font-weight:700;padding:0 4pt 0 0;white-space:nowrap}
+.cell .note{font-size:7.5pt;color:var(--muted);margin:2pt 0 0}
+.foot{display:flex;justify-content:space-between;font-size:8pt;color:var(--muted);border-top:1px solid var(--line);padding-top:3pt;margin-top:auto}
+.wl{font-size:7.5pt;color:var(--muted)}.wl span{display:inline-block;border-bottom:1px solid #999;width:.5in;margin-left:3pt}
+@media print{.toolbar{display:none}.page{margin:0;width:auto;min-height:auto}}
+@media screen and (max-width:900px){.page{width:auto;min-height:auto;padding:12px}.grid{grid-template-columns:1fr}.cell{grid-template-columns:110px 1fr}.cell img{width:110px}}
+</style>
+<div class="toolbar">
+  <a class="back" href="start.html">← Home</a>
+  <label>Workout <select id="pick"></select></label>
+  <label><input type="checkbox" id="home"> Home version</label>
+  <button id="printBtn">Print</button>
+  <span id="hint">Tip: in the print box turn off headers and footers.</span>
+</div>
+<div id="pages"></div>
+<script src="vault.js"></script>
+<script>
+let D=null;
+function pageHTML(p,w,day){
+  const blocks=day.blocks.map(b=>{
+    const n=b.exercises.length;const last=b.exercises[n-1];
+    const cells=b.exercises.map(e0=>{
+      const e=shownEx(D,day.id,e0,$('#home').checked?'home':'gym');
+      const sp=special(e);
+      const pr=e.startPhoto?e:pairFor(D,e.video);
+      return `<div class="cell">${pr.startPhoto?`<div class="pp"><img src="${esc(pr.startPhoto)}" alt=""><img src="${esc(pr.endPhoto)}" alt=""></div>`:e.photo?`<img src="${esc(e.photo)}" alt="">`:'<div></div>'}<div><h2><span class="code">${esc(e.code)}</span>${esc(e.name)}${e.gymName?` <span style="font-weight:400;color:#555">(gym: ${esc(e.gymName)})</span>`:''}</h2>
+        <table><tr><th>Reps</th><th>Sets</th><th>Rest</th><th>Tempo</th><th>Weight</th></tr><tr><td>${esc(e.reps||'–')}</td><td>${e.sets||'–'}</td><td>${e.restSeconds?e.restSeconds+'s':'0'}${e.activeRest?' active':''}</td><td>${esc(e.tempo||'–')}</td><td class="wl"><span></span><span></span><span></span></td></tr></table>
+        ${(e.note&&!sp)?`<p class="note">${esc(e.note)}</p>`:''}${sp?`<p class="note">${esc(sp)}</p>`:''}</div></div>`}).join('');
+    return `<div class="blk"><div class="bh"><span>${esc(b.label)} · ${n===1?'single':n===2?'superset':'circuit'}</span><span>${b.exercises.map(e=>e.code).join(' → ')}${last.restSeconds?` → rest ${last.restSeconds}s`:''}</span></div><div class="grid">${cells}</div></div>`;
+  }).join('');
+  return `<section class="page"><div class="head"><div><div class="eyebrow">The Toning Vault · Step ${p.step} · ${esc(p.name)}</div><h1>${esc(w.name.replace(' · Home',''))} · Day ${day.day}${w.home?' · Home':''}</h1></div>
+    <div class="right">${esc(p.reps)} · ${esc(p.load)}<br>Letters before numbers. Rest after the last exercise in a circuit.<br>Tempo = seconds down · hold · up</div></div>
+    ${blocks}<div class="foot"><span>The Toning Vault · © 2026 Michelle Marie Fit</span><span>Videos: in the app, tap any exercise</span></div></section>`;
+}
+function render(){
+  const want=decodeURIComponent(location.hash.replace(/^#/,'')).toLowerCase();
+  const pl=$('#home').checked?'home':'gym';
+  const items=D.phases.flatMap(p=>p.workouts.filter(w=>!w.home).flatMap(w=>placed(D,w,pl).days.map(d=>({p,w:placed(D,w,pl),d,base:w}))));
+  const sel=$('#pick');
+  sel.innerHTML=`<option value="all">Every day (${items.length} pages)</option>`+D.phases.map(p=>`<optgroup label="${esc(p.name)}">${p.workouts.filter(w=>!w.home).map(w=>`<option value="${esc(w.id)}">${esc(w.name)} (3 days)</option>`+placed(D,w,pl).days.map(d=>`<option value="${esc(d.id)}">&nbsp;&nbsp;Day ${d.day}</option>`).join('')).join('')}</optgroup>`).join('');
+  const x=dayById(D,want);const wantBase=x?x.workout.base:(workoutById(D,want)?workoutById(D,want).base:null);
+  let show=items;
+  if(x){show=items.filter(i=>i.base.base===wantBase&&i.d.day===x.day.day);sel.value=show.length?show[0].d.id:'all'}
+  else if(wantBase){show=items.filter(i=>i.base.base===wantBase);sel.value=wantBase}
+  else if(phaseById(D,want)){show=items.filter(i=>i.p.id===want);sel.value='all'}
+  else sel.value='all';
+  $('#pages').innerHTML=show.map(i=>pageHTML(i.p,i.w,i.d)).join('');
+  document.title=(show.length===1?`${show[0].w.name} Day ${show[0].d.day}`:'The Toning Vault')+' · Print';
+}
+load().then(d=>{D=d;$('#home').checked=((climb()||store.get('vault:setup',{})).place==='home');render()});
+$('#pick').addEventListener('change',e=>{location.hash=e.target.value==='all'?'':e.target.value;render()});
+$('#home').addEventListener('change',render);
+$('#printBtn').addEventListener('click',()=>window.print());
+window.addEventListener('hashchange',render);
+</script>

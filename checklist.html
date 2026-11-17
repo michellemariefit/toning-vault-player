@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Before you start · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow">Before the workout</span><h1>The checklist</h1><p class="lead">The workout before the workout. Run this list once and the next 30 days stop being a question of motivation. They start being a question of habit.</p></header>
+  <section id="list"></section>
+  <section class="card gold"><h3>“Motivation gets you started. Setup keeps you going.”</h3><p id="count"></p></section>
+</div>
+<script src="vault.js"></script>
+<script>
+const GROUPS=[
+ ['Wardrobe and setup',['Workout clothes picked out and laid out the night before.','Inventory check: list what you have, list what is missing, pick a day and time to grab it.','Stability ball','3 sets of dumbbells (light, medium, heavy)','Resistance bands or tubing','A step, bench or sturdy short table you can step up on']],
+ ['Gym and logistics',['Gym membership is active (or buy or renew it today).','Childcare confirmed: gym kids club, sitter, or a partner on duty.','Enough gas in the tank to get there. Planning is the workout before the workout.']],
+ ['Fuel and hydration',['Eaten 1 to 2 hours pre-workout.','Post-workout shake prepped: powder in the shaker, water added when you are ready.','Water bottle filled and going with you.']],
+ ['The app',['Put it on your home screen.','Started the Climb on the home page.','Blocked every workout for the month in your calendar.']],
+];
+function render(){
+  const s=store.get('vault:check',{});let n=0,t=0;
+  $('#list').innerHTML=GROUPS.map(([g,items],gi)=>`<h2 class="also">${esc(g)}</h2><div class="ck">${items.map((it,i)=>{const k=`${gi}-${i}`;t++;if(s[k])n++;return `<label class="${s[k]?'on':''}"><input type="checkbox" data-k="${k}" ${s[k]?'checked':''}><span>${esc(it)}</span></label>`}).join('')}</div>`).join('');
+  $('#count').textContent=`${n} of ${t} done.`+(n===t?' You are set. Go train.':'');
+}
+document.addEventListener('change',e=>{const i=e.target.closest('input[data-k]');if(!i)return;const s=store.get('vault:check',{});s[i.dataset.k]=i.checked;store.set('vault:check',s);render()});
+render();
+</script>

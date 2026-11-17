@@ -1,0 +1,76 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>This week · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+/* The Plug & Play calendar as a week you can tap. Ticks fill in from finished workouts. */
+.nav{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.nav button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 14px;font-weight:600}
+.daylist{display:flex;flex-direction:column;gap:8px}
+.dayrow{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-decoration:none;color:inherit}
+.dayrow .dn{text-align:center}
+.dayrow .dn b{display:block;font:700 22px/1 var(--display)}
+.dayrow .dn small{font:500 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dayrow .what b{display:block;font-weight:600}
+.dayrow .what small{color:var(--muted);font-size:13px}
+.dayrow.today{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.dayrow.done{background:var(--done-soft);border-color:var(--done)}
+.dayrow .go2{font:500 13px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:8px 11px;background:var(--bg)}
+.dayrow.done .go2{color:var(--done);border-color:var(--done)}
+.dayrow.rest .go2{display:none}
+</style>
+<div class="wrap">
+  <header class="page"><a class="back" href="start.html">← Home</a><span class="eyebrow" id="eyebrow">Plug &amp; Play calendar</span><h1 id="title">This week</h1><p class="lead" id="lead"></p></header>
+  <div class="nav"><button id="prev">← Last week</button><span id="count" class="note"></span><button id="next">Next week →</button></div>
+  <section class="daylist" id="days"></section>
+  <section class="card">
+    <h3>How the ticks work</h3>
+    <p>Finish a workout in Play or List (tap Finish at the end) and that day ticks itself. Missed Monday? Tap any day and do it; the plan is a skeleton, not the army.</p>
+    <p id="calnote"></p>
+    <div id="calvid"></div>
+    <p>Spice days: pick one spice from the <a href="spice.html" style="color:var(--brand)">Spice Rack</a> by how your energy is. One per workout, and only on extra workouts.</p>
+  </section>
+</div>
+<script src="vault.js"></script>
+<script>
+let D=null, off=0;
+function render(){
+  const c=climb();
+  if(!c){$('#days').innerHTML=`<div class="card soft"><h3>Start the Climb first</h3><p>Answer three questions on the home page and the week fills itself in.</p><a class="go" href="start.html">Go to Home</a></div>`;$('#calnote').textContent='';return}
+  const mon=monday(new Date());mon.setDate(mon.getDate()+off*7);
+  const wk=stepWeek(c)+off;
+  const w=currentWorkout(D,c), name=stepName(D,c.step);
+  $('#title').textContent=off===0?'This week':off===-1?'Last week':off===1?'Next week':`Week of ${mon.toLocaleDateString(undefined,{month:'short',day:'numeric'})}`;
+  $('#lead').textContent=`Step ${c.step} · ${name} · week ${wk<1?'before the step':wk>4?wk+' (time to climb)':wk+' of 4'} · ${w.name}`;
+  const done=doneInWeek(mon);
+  $('#count').textContent=`${done.length} done`;
+  const f=D.phases[0].workouts.find(x=>!x.home);
+  $('#days').innerHTML=WEEKDAYS.map((dn,i)=>{
+    const date=new Date(mon.getTime()+i*DAY), ds=ymd(date);
+    const p=plan(c,Math.max(wk,1),i);
+    const dd=doneOn(ds);
+    let what='',href='';
+    if(p.type==='toning'){const d=w.days.find(x=>x.day===p.day)||w.days[0];what=`<b>${esc(w.name)} · Day ${d.day}${p.spice?' <span class="star">✦ spice</span>':''}</b><small>${d.n} exercises · ~${d.minutes} min${p.note?' · '+esc(p.note):''}</small>`;href=`play.html#${d.id}`}
+    else if(p.type==='cardio'){what=`<b>Cardio</b><small>${esc(p.note)}</small>`;href='index.html#all'}
+    else if(p.type==='extra'){what=`<b>${esc(p.label==='Extra'?'Extra workout':p.label)}</b><small>${esc(p.note)}</small>`;href=p.full?`play.html#${placed(D,f,c.place).days[0].id}`:`index.html#${w.id}`}
+    else {what=`<b>${esc(p.label)}</b><small>${esc(p.note)}</small>`}
+    if(dd.length) what=`<b>${esc(dd.map(x=>x.name).join(', '))}</b><small>Done ✓${p.type==='toning'?'':' · planned: '+esc(p.label)}</small>`;
+    const cls=`dayrow ${ds===TODAY?'today':''} ${dd.length?'done':''} ${p.type==='rest'?'rest':''}`;
+    const inner=`<div class="dn"><small>${dn}</small><b>${date.getDate()}</b></div><div class="what">${what}</div><span class="go2">${dd.length?'Done':p.type==='cardio'?'Ideas':'Open'}</span>`;
+    return href?`<a class="${cls}" href="${href}">${inner}</a>`:`<div class="${cls}">${inner}</div>`;
+  }).join('');
+  $('#calvid').innerHTML=vidHTML(c.cal==='u35'?'calU35':'calO35');
+  $('#calnote').innerHTML=c.cal==='u35'?'<b>Under 35:</b> Day 1, 2, 3 on Monday, Wednesday, Friday. Cardio Tuesday and Thursday. Saturday off or an extra workout.':'<b>Over 35:</b> five training days. The order of Day 1, 2, 3 shifts each week, one day repeats, and the 4th workout is yours to choose. Saturday and Sunday are recovery.';
+}
+$('#prev').onclick=()=>{off--;render()};$('#next').onclick=()=>{off++;render()};
+load().then(d=>{D=d;render()});
+</script>

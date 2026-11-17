@@ -1,0 +1,221 @@
+<!doctype html>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Play · The Toning Vault</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a4f5a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Toning Vault">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="vault.css">
+<style>
+/* Guided play: one exercise at a time, one big button. Walks every round of every circuit, starts the rest
+   timer itself, saves the same ticks as the list view, remembers weights. Link: play.html#tt-1-d2 */
+html,body{height:100%}
+body{display:flex;flex-direction:column;padding:env(safe-area-inset-top,0) max(14px,env(safe-area-inset-right,0)) max(14px,env(safe-area-inset-bottom,0)) max(14px,env(safe-area-inset-left,0))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0 8px}
+.top .where{font:500 12px/1.2 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--brand)}
+.top .where small{display:block;color:var(--muted);letter-spacing:.04em;font-size:12px;text-transform:none}
+.top a{font:500 13px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:8px 12px;white-space:nowrap}
+.dots{display:flex;gap:3px;margin-bottom:12px}
+.dots i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.dots i.done{background:var(--gold)}.dots i.now{background:var(--brand)}
+main{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+main .row{margin-top:auto}
+.card{border-radius:22px}
+h1.ex{margin:0;font:600 clamp(22px,6.5vw,30px)/1.15 var(--body);display:flex;gap:10px;align-items:flex-start}
+.sub{font-size:14px;color:var(--muted)}
+.wt{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--muted)}
+.wt input{width:84px;text-align:center;font-weight:600;color:var(--ink);font-size:17px}
+.links{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.links button,.links a{background:none;border:0;padding:6px 0;font-weight:600;color:var(--brand);text-decoration:none}
+.go{border-radius:16px;padding:20px;font-size:21px}
+.row{display:flex;gap:8px}
+.row .back{flex:0 0 auto;border:1px solid var(--line);background:var(--card);border-radius:16px;padding:0 16px;font:600 14px/1 var(--body);letter-spacing:.06em;text-transform:uppercase}
+.row .go{flex:1}
+.hold{display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px}
+.hold .t{font:700 44px/1 var(--body);font-variant-numeric:tabular-nums;min-width:2.2ch}
+.hold button{border:1px solid currentColor;background:transparent;color:inherit;border-radius:12px;padding:10px 14px;font-weight:600;margin-left:auto}
+.restcard{flex:1;background:var(--brand);color:#fff;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;position:relative;overflow:hidden}
+.restcard .big{font:700 clamp(90px,30vw,150px)/1 var(--body);font-variant-numeric:tabular-nums}
+.restcard .lbl{font:700 26px/1.2 var(--display)}
+.restcard .subl{opacity:.85;font-size:16px}
+.restcard .next{margin-top:8px;background:rgba(255,255,255,.15);border-radius:14px;padding:10px 14px;font-size:15px}
+.restcard .next b{display:block;font:600 18px/1.2 var(--body)}
+.restcard .btns{display:flex;gap:10px;margin-top:10px}
+.restcard .btns button{border:2px solid #fff;background:transparent;color:#fff;border-radius:14px;padding:14px 18px;font:600 17px/1 var(--body)}
+.bar{position:absolute;left:0;top:0;height:6px;background:var(--gold);transition:width 1s linear}
+.donecard{flex:1;background:var(--done-soft);border:1px solid var(--done);border-radius:22px;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:24px;text-align:center}
+.donecard h2{font-size:36px;color:var(--done)}
+.intro{flex:1;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.intro h2{font-size:34px}
+.intro .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.intro .change{font:500 13px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--brand);text-decoration:none}
+.picker{display:flex;flex-direction:column;gap:14px;padding-bottom:20px}
+.picker .grp{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.picker .ws{display:flex;flex-direction:column;gap:6px}
+.picker .w{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.picker .w b{font-weight:600}
+.picker .days{display:flex;gap:6px}
+.picker .days a{text-decoration:none;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:8px 11px;font:500 13px/1 var(--body);background:var(--bg)}
+.spice{background:var(--gold-soft);border:1px solid var(--gold);border-radius:14px;padding:10px 12px;font-size:14px}
+</style>
+<header class="top">
+  <div class="where" id="where">The Toning Vault</div>
+  <a id="listLink" href="index.html#all">List view</a>
+</header>
+<div class="dots" id="dots"></div>
+<main id="main"></main>
+
+<script src="vault.js"></script>
+<script>
+let D=null, P=null, W=null, DAYX=null, steps=[], at=-1, rest=null, timer=null, hold=null, openVid=false;
+const place=()=>(climb()||store.get('vault:setup',{})).place||'gym';
+const setPlace=v=>{const c=climb();if(c){c.place=v;setClimb(c)}else{const o=store.get('vault:setup',{});o.place=v;store.set('vault:setup',o)}};
+const key=()=>`vault:day:${DAYX.id}`;
+const shown=e=>shownEx(D,DAYX.id,e,place());
+
+// Steps: for every circuit, round by round. An exercise with its own rest gets a rest step after it
+// (the PDFs put the rest on the last exercise of a circuit). Exercises with fewer sets drop out of later rounds.
+function buildSteps(){
+  steps=[];
+  DAYX.blocks.forEach(b=>{
+    const rounds=Math.max(...b.exercises.map(e=>e.sets||1));
+    for(let r=0;r<rounds;r++){
+      const inRound=b.exercises.filter(e=>(e.sets||1)>r);
+      inRound.forEach((e,i)=>{
+        steps.push({kind:'ex',e,round:r,rounds,block:b,last:i===inRound.length-1});
+        if(e.restSeconds>0) steps.push({kind:'rest',sec:e.restSeconds,block:b,round:r,rounds,active:!!e.activeRest});
+      });
+    }
+  });
+  if(steps.length&&steps[steps.length-1].kind==='rest') steps.pop();
+}
+function beep(){
+  try{const c=new (window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+    o.frequency.value=880;g.gain.value=.25;o.start();o.stop(c.currentTime+.18);
+    const o2=c.createOscillator();o2.connect(g);o2.frequency.value=1175;o2.start(c.currentTime+.22);o2.stop(c.currentTime+.45)}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([150,80,150])}catch(e){}
+}
+function startTimer(kind,sec){
+  stopTimer();const ends=Date.now()+sec*1000;
+  const t={kind,ends,total:sec,left:sec};if(kind==='rest')rest=t;else hold=t;
+  timer=setInterval(()=>{t.left=Math.ceil((t.ends-Date.now())/1000);
+    if(t.left<=0){stopTimer();beep();if(kind==='rest')next();else{hold={done:true};render()}}else tick(t)},250);
+  render();
+}
+function stopTimer(){clearInterval(timer);timer=null;rest=null;hold=null}
+function tick(t){const el=$('#tnum'),b=$('#tbar');if(el)el.textContent=t.left;if(b)b.style.width=(100*(t.total-t.left)/t.total)+'%'}
+function tickSet(e,round,on){const s=store.get(key(),{ticks:{}});const a=s.ticks[e.code]||[];a[round]=on;s.ticks[e.code]=a;store.set(key(),s)}
+function saveWt(){const i=$('#wt');if(i&&i.value!=='')saveWeight(i.dataset.wt,+i.value)}
+
+function next(){
+  saveWt();stopTimer();openVid=false;
+  const cur=steps[at];
+  if(cur&&cur.kind==='ex')tickSet(cur.e,cur.round,true);
+  at++;
+  if(at>=steps.length){finish();return}
+  if(steps[at].kind==='rest'){startTimer('rest',steps[at].sec);return}
+  render();window.scrollTo(0,0);
+}
+function back(){stopTimer();openVid=false;if(at>0){at--;if(steps[at].kind==='rest')at--;if(steps[at]&&steps[at].kind==='ex')tickSet(steps[at].e,steps[at].round,false)}render()}
+function finish(){
+  const s=store.get(key(),{ticks:{}});s.finished=Date.now();store.set(key(),s);
+  logDone(DAYX,W,P);
+  at=steps.length;render();
+}
+function spiceToday(){const s=store.get('vault:spice',null);return s&&s.d===TODAY?s:null}
+
+function render(){
+  $('#listLink').href=`index.html#${DAYX.id}`;
+  const exSteps=steps.filter(s=>s.kind==='ex');
+  const doneCount=steps.slice(0,Math.max(at,0)).filter(s=>s.kind==='ex').length;
+  $('#dots').innerHTML=exSteps.map((s,i)=>`<i class="${i<doneCount?'done':i===doneCount&&at<steps.length?'now':''}"></i>`).join('');
+  const m=$('#main');
+  const pl=place();
+  if(at<0){
+    const sp=spiceToday();
+    $('#where').innerHTML=`Step ${P.step} · ${esc(P.name)}<small>${esc(W.name)}</small>`;
+    m.innerHTML=`<div class="intro"><span class="eyebrow">${esc(W.name)}</span><h2>Day ${DAYX.day}</h2>
+      <p class="note">${DAYX.n} exercises, ${DAYX.blocks.length} circuit${DAYX.blocks.length>1?'s':''}, about ${DAYX.minutes} minutes. ${esc(P.reps)}. I'll tell you what's next and start the rest timer for you.</p>
+      <div class="chips">${DAYX.blocks.map(b=>`<span class="chip">${esc(b.label)}: ${b.exercises.map(e=>e.code).join(' → ')}</span>`).join('')}</div>
+      <div class="opt"><span><b>Where are you?</b><br><small class="note">Home swaps in the home version of each move.</small></span><span class="seg"><button data-place="gym" aria-pressed="${pl==='gym'}">Gym</button><button data-place="home" aria-pressed="${pl==='home'}">Home</button></span></div>
+      ${sp?`<div class="spice"><b>Today's spice: ${esc(sp.name)}.</b> ${esc(sp.how)} <a href="spice.html" style="color:inherit">Change</a></div>`:''}
+      <button class="go" id="start">Start</button><a class="change" href="play.html">Pick a different workout</a></div>`;
+    return;
+  }
+  if(at>=steps.length){
+    $('#where').innerHTML=`Step ${P.step} · ${esc(P.name)}<small>${esc(W.name)}</small>`;
+    const n=doneInWeek(monday(new Date())).length;
+    const nx=W.days.find(x=>x.day===DAYX.day+1);
+    m.innerHTML=`<div class="donecard"><h2>Day ${DAYX.day} done</h2><p>Nice work. Drink some water. ${nx?`Next time it's Day ${nx.day}.`:'That was the last day of this workout. Next time, back to Day 1.'}</p><p><b>${n}</b> workout${n===1?'':'s'} this week.</p>
+      <a class="go" style="display:block;text-decoration:none;text-align:center" href="week.html">See the week</a><a class="go quiet" style="display:block;text-decoration:none;text-align:center" href="start.html">Home</a></div>`;
+    return;
+  }
+  const s=steps[at];
+  if(s.kind==='rest'){
+    const nx=steps[at+1];const ne=nx&&nx.kind==='ex'?shown(nx.e):null;
+    $('#where').innerHTML=`${s.active?'Active rest':'Rest'}<small>${s.block.label} · round ${s.round+1} of ${s.rounds}</small>`;
+    m.innerHTML=`<div class="restcard"><div class="bar" id="tbar" style="width:${rest?100*(rest.total-rest.left)/rest.total:0}%"></div>
+      <div class="big" id="tnum">${rest?rest.left:s.sec}</div><div class="lbl">${s.active?'Active rest':'Rest'}</div><div class="subl">${s.active?'Keep moving, easy pace.':'Breathe. Shake it out.'}</div>
+      ${ne?`<div class="next">Next up<b>${esc(ne.code)} · ${esc(ne.name)}</b>${nx.round===s.round?`round ${nx.round+1}`:`round ${nx.round+1} of ${nx.rounds}`}</div>`:''}
+      <div class="btns"><button id="plus">+15s</button><button id="skip">Skip rest</button></div></div>`;
+    return;
+  }
+  const e=shown(s.e);const hs=holdSeconds(e);
+  const idx=exSteps.indexOf(s);
+  $('#where').innerHTML=`${esc(s.block.label)} · round ${s.round+1} of ${s.rounds}<small>${idx+1} of ${exSteps.length} · ${esc(W.name)} Day ${DAYX.day}</small>`;
+  const vidBtn=e.video?(EMBED_OK?`<button data-embed="${esc(e.video)}">${openVid===e.video?'✕ Close demo':'▶ Watch demo'}</button>`:`<a href="https://www.youtube.com/watch?v=${esc(e.video)}" target="_blank" rel="noopener">▶ Watch demo</a>`):'';
+  const holdUI=hs?(hold&&!hold.done?`<div class="hold"><div class="t" id="tnum">${hold.left}</div><div>Hold the hardest point</div><button id="stopHold">Stop</button></div>`
+    :`<button class="go quiet" id="startHold" style="padding:14px;font-size:17px">⏱ ${hold&&hold.done?'Hold done · again?':`Start ${hs}s hold`}</button>`):'';
+  const lw=lastWeight(e.video||e.name);
+  const sp=special(e);
+  m.innerHTML=`<div class="card">${picHTML(D,e,false)}${openVid&&EMBED_OK?`<div class="embed"><iframe src="https://www.youtube-nocookie.com/embed/${esc(openVid)}?rel=0&modestbranding=1&playsinline=1&autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`:''}
+    <h1 class="ex"><span class="code ${e.swapped?'swap':''}">${esc(e.code)}</span><span>${esc(e.name)}</span></h1>
+    ${e.swapped?`<div class="sub">Swapped in for ${esc(e.orig)}</div>`:e.gymName?`<div class="sub">At the gym: ${esc(e.gymName)}</div>`:''}
+    <div class="chips">${e.reps?`<span class="chip hot">${esc(e.reps)} reps</span>`:''}${e.sets>1?`<span class="chip">set ${s.round+1} of ${e.sets}</span>`:''}${e.tempo?`<span class="chip">tempo ${esc(e.tempo)}</span>`:''}${e.restSeconds?`<span class="chip">then rest ${e.restSeconds}s</span>`:''}</div>
+    ${e.tempo?`<div class="sub">${esc(TEMPO_WORDS(e.tempo))}, in seconds</div>`:''}
+    ${sp?`<p class="note">${esc(sp)}</p>`:''}
+    ${holdUI}
+    <label class="wt">Weight <input id="wt" type="number" inputmode="decimal" step="0.5" min="0" data-wt="${esc(e.video||e.name)}" value="${lw&&lw.d===TODAY?lw.w:''}" placeholder="${lw?'last '+lw.w:'lb'}"> lb${lw&&lw.d!==TODAY?`<span class="sub">last time ${lw.w}</span>`:''}</label>
+    <div class="links">${vidBtn}<button data-swap="1">⇄ ${e.swapped?'Swapped · change':'Swap'}</button></div></div>
+    <div class="row">${at>0?'<button class="back" id="back">Back</button>':''}<button class="go" id="done">${steps[at+1]&&steps[at+1].kind==='rest'?'Done · start rest':(at===steps.length-1?'Done · finish':'Done · next')}</button></div>`;
+}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button,a');if(!b)return;
+  if(b.id==='start'){store.set(key(),{ticks:{}});at=0;render();return}
+  if(b.id==='done'){next();return}
+  if(b.id==='back'){back();return}
+  if(b.id==='skip'){next();return}
+  if(b.id==='plus'&&rest){rest.ends+=15000;rest.total+=15;return}
+  if(b.id==='startHold'){startTimer('hold',holdSeconds(shown(steps[at].e)));return}
+  if(b.id==='stopHold'){stopTimer();render();return}
+  if(b.dataset.place){setPlace(b.dataset.place);reload();return}
+  if(b.dataset.embed){openVid=openVid===b.dataset.embed?false:b.dataset.embed;render();return}
+  if(b.dataset.swap){saveWt();openSwap(D,DAYX.id,shown(steps[at].e),place(),render);return}
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&(rest||hold))render()});
+
+function reload(){
+  const id=decodeURIComponent(location.hash.replace(/^#/,'')).toLowerCase();
+  const x=dayPlaced(D,id,place());
+  if(!x){renderPicker();return}
+  P=x.phase;W=x.workout;DAYX=x.day;buildSteps();render();
+}
+load().then(d=>{D=d;reload()});
+
+function renderPicker(){
+  $('#where').innerHTML=`The Toning Vault<small>Pick a workout day</small>`;
+  $('#listLink').href='index.html#all';$('#dots').innerHTML='';
+  const pl=place();
+  $('#main').innerHTML=`<div class="picker"><h2>What are we doing today?</h2>
+    <p class="note">Play walks you through one exercise at a time. Want the whole day on one page? Tap List view, top right.</p>
+    ${D.phases.map(p=>`<div class="grp"><span class="eyebrow">Step ${p.step}</span><h3>${esc(p.name)}</h3><div class="ws">${p.workouts.filter(w=>!w.home).map(w=>{const pw=placed(D,w,pl);return `<div class="w"><b>${esc(w.name)}</b><span class="days">${pw.days.map(d=>`<a href="play.html#${esc(d.id)}">▶ Day ${d.day}</a>`).join('')}</span></div>`}).join('')}</div></div>`).join('')}
+  </div>`;
+}
+window.addEventListener('hashchange',()=>location.reload());
+</script>
