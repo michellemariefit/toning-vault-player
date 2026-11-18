@@ -65,8 +65,8 @@ def minutes(day):
         for e in b["exercises"]:
             nums = [int(x) for x in re.findall(r"\d+", e["reps"])]
             reps = (sum(nums) / len(nums)) if nums else 20
-            if "-" in e["reps"] and len(nums) > 2: reps = sum(nums)      # pyramids and drop sets list every mini-set
-            sets = 1 if len(nums) > 2 else (e["sets"] or 1)
+            if len(nums) >= 3: reps = sum(nums)      # 21's, pyramids and drop sets list every part
+            sets = 1 if len(nums) > 3 else (e["sets"] or 1)   # a pyramid or drop set is one long set
             per = reps * tempo_seconds(e["tempo"]) + (30 if "sec" in e["reps"] else 0) + 12
             sec += sets * per + sets * e["restSeconds"]
     return int(round(sec / 60 / 5.0)) * 5 or 5
