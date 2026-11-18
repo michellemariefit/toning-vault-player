@@ -44,7 +44,8 @@ def ncc(a, b):
 
 
 def sample(clip, tmp):
-    subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-vf", f"fps={FPS},scale=192:-2", os.path.join(tmp, "f%05d.jpg")], check=True)
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-vf", f"fps={FPS},scale=192:-2", os.path.join(tmp, "f%05d.jpg")])
+    if r.returncode: print("bad clip", os.path.basename(clip))
     return sorted(os.listdir(tmp))
 
 
@@ -57,13 +58,25 @@ def best_frames(clip, t_start, t_end):
     with tempfile.TemporaryDirectory() as tmp:
         frames = sample(clip, tmp)
         if not frames: return None
-        arrs = [prep(Image.open(os.path.join(tmp, f))) for f in frames]
-        ss = [ncc(a, t_start) for a in arrs]; es = [ncc(a, t_end) for a in arrs]
-        i = int(np.argmax(ss))
-        # the end frame should come after the start frame, within the same rep or two
-        lo, hi = i + 1, min(len(es), i + FPS * 6)
-        j = (lo + int(np.argmax(es[lo:hi]))) if hi > lo else int(np.argmax(es))
-        return {"start": i / FPS, "end": j / FPS, "sStart": ss[i], "sEnd": es[j], "n": len(frames)}
+        raw = [Image.open(os.path.join(tmp, f)) for f in frames]
+        arrs = [prep(im) for im in raw]
+        ss = np.array([ncc(a, t_start) for a in arrs]); es = np.array([ncc(a, t_end) for a in arrs])
+        # fades: the first second, the last two seconds, and any near-black frame are out
+        dark = np.array([np.asarray(im.convert("L")).std() < 12 for im in raw])
+        bad = dark.copy(); bad[:FPS] = True; bad[-2 * FPS:] = True
+        ss[bad] = -9; es[bad] = -9
+        # the background is the same in both photos, so score each frame by how much more it looks like
+        # one pose than the other; the start frame is the most start-like, the end frame the most end-like
+        # within the next five seconds (one rep or two)
+        d = np.where(bad, -9, ss - es)
+        i = int(np.argmax(d))
+        lo, hi = i + 2, min(len(es), i + FPS * 5)
+        de = np.where(bad, -9, es - ss)
+        j = (lo + int(np.argmax(de[lo:hi]))) if hi > lo else int(np.argmax(de))
+        if de[j] <= 0:   # nothing after the start looks more like the end: take the best end frame anywhere
+            j2 = int(np.argmax(de))
+            if abs(j2 - i) >= 2: j = j2
+        return {"start": i / FPS, "end": j / FPS, "sStart": float(ss[i]), "sEnd": float(es[j]), "n": len(frames)}
 
 
 def main():
@@ -82,9 +95,12 @@ def main():
         if vid in results and not a.force and vid not in OVR:
             continue
         t_start, t_end = prep(Image.open(ps)), prep(Image.open(pe))
-        if vid in OVR:
+        if vid in OVR and OVR[vid][1] is not None:
             name, s, e = OVR[vid]; clip = os.path.join(a.clips, name)
             pick = {"clip": name, "start": s, "end": e, "sStart": None, "sEnd": None, "override": True}
+        elif vid in OVR:   # clip pinned, seconds matched
+            name = OVR[vid][0]; clip = os.path.join(a.clips, name)
+            r = best_frames(clip, t_start, t_end); pick = {"clip": name, **r}
         else:
             pick = None
             for name in MAP[vid]:
