@@ -110,6 +110,7 @@ def parse_stats(tokens):
         t.pop()
     reps = " ".join(t)
     reps = re.sub(r"-\s+", "-", reps).replace(" -", "-").strip()
+    if reps == "7-7-": reps = "7-7-7"      # one PDF cell lost its last 7
     rest_s = int(re.sub(r"\D", "", rest) or 0)
     out = {"reps": reps, "sets": sets, "restSeconds": rest_s, "tempo": "".join(tempo).strip("-")}
     if active: out["activeRest"] = True

@@ -112,18 +112,20 @@ function shownEx(d,dayId,e,place){
 function photoFor(v){return v?`images/${v}-pdf.webp`:null}
 const TEMPO_WORDS=t=>{const m=/^(\d)(\d)(\d)(?:-(\d)(\d)(\d))?$/.exec(t||'');if(!m)return '';
   const one=(a,b,c)=>`${a} down · ${b} hold · ${c} up`;return m[4]?`${one(m[1],m[2],m[3])}, pulses ${one(m[4],m[5],m[6])}`:one(m[1],m[2],m[3])};
-function special(e){ // the "spice" baked into this exercise, in one line
+function special(e){ // every technique baked into this exercise, one line each
   const n=(e.note||'').toLowerCase(), r=e.reps||'';
   const nums=r.split('-').filter(x=>/^\d+$/.test(x));
-  if(n.includes('pyramid')||(nums.length>2&&nums.every(x=>x===nums[0]))) return `Pyramid set: ${nums.length>2?nums.length+' sets of '+nums[0]:'10 reps at a time'}. Go up in weight each time, then back down. No rest between.`;
-  if(nums.length>2) return `Drop set: ${r} reps. Lighter weight each time, no rest between.`;
-  if(/21/.test(n)||r==='7-7-7') return "21's: 7 reps bottom half, 7 reps top half, 7 full reps. No rest between.";
-  if(/1\s*½|1 1\/2/.test(n)) return '1½ reps: all the way down, halfway up, back down, all the way up. That is one rep.';
-  if(/hold/.test(n)){const m=n.match(/(\d+)s?/);return `Isometric hold: on the last rep, hold the hardest point for ${m?m[1]:20} seconds.`}
-  if(/pulse/i.test(e.name)) return 'Pulses: small quick reps in the hardest part of the move. Keep the tension on.';
-  if(/per side/.test(r)) return 'Reps are per side.';
-  if(/sec/.test(r)) return 'Timed: hold for the seconds shown.';
-  return '';
+  const out=[];
+  const is21=/21/.test(n)||r==='7-7-7';
+  if(is21) out.push("21's: 7 reps bottom half, 7 reps top half, 7 full reps. 21 in a row, no rest between the parts.");
+  else if(n.includes('pyramid')||(nums.length>3&&nums.every(x=>x===nums[0]))) out.push(`Pyramid set: ${nums.length>3?nums.length+' sets of '+nums[0]:'10 reps at a time'}. Go up in weight each time, then back down. No rest between.`);
+  else if(nums.length>2) out.push(`Drop set: ${r} reps. Lighter weight each time, no rest between.`);
+  if(/1\s*½|1 1\/2/.test(n)) out.push('1½ reps: all the way down, halfway up, back down, all the way up. That is one rep.');
+  if(/hold/.test(n)){const m=n.match(/(\d+)\s*s/);out.push(`Isometric hold: on the last rep, hold the hardest point for ${m?m[1]:20} seconds. Tap the hold timer.`)}
+  if(!out.length&&/pulse/i.test(e.name)) out.push('Pulses: small quick reps in the hardest part of the move. Keep the tension on.');
+  if(!out.length&&/per side/.test(r)) out.push('Reps are per side.');
+  if(!out.length&&/sec/.test(r)) out.push('Timed: hold for the seconds shown.');
+  return out.join(' ');
 }
 function holdSeconds(e){const m=(e.note||'').match(/hold\D*(\d+)/i);if(m)return +m[1];const t=(e.reps||'').match(/^(\d+)(?:-(\d+))?\s*sec/i);return t?+(t[2]||t[1]):0}
 function setsLabel(e){const nums=(e.reps||'').split('-').filter(x=>/^\d+$/.test(x));if(!e.sets)return nums.length>2?'1 set':'';return `${e.sets} set${e.sets>1?'s':''}`}
